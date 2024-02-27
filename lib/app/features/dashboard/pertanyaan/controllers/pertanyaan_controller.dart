@@ -1,6 +1,8 @@
-import 'package:mysusenas/app/constans/app_constants.dart';
-import 'package:mysusenas/app/features/dashboard/cloud/views/screens/cloud_screen.dart';
-import 'package:mysusenas/app/features/dashboard/pertanyaan/models/data_model.dart';
+import 'dart:developer';
+
+import 'package:dd64mis/app/constans/app_constants.dart';
+import 'package:dd64mis/app/features/dashboard/cloud/views/screens/cloud_screen.dart';
+import 'package:dd64mis/app/features/dashboard/pertanyaan/models/data_model.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:get_storage/get_storage.dart';
@@ -21,9 +23,9 @@ class PertanyaanController extends GetxController {
   final Map<String, dynamic> values = {};
   List<Map<String, dynamic>> listoffline = [];
   int badgesoffline = 0;
-
+  var petugasTerpilih = Petugas();
   PermissionStatus? _permissionGranted;
-  Location location = new Location();
+  Location location = Location();
   late bool _serviceEnabled;
   LocationData? _locationData;
   String koordinat = "";
@@ -34,6 +36,7 @@ class PertanyaanController extends GetxController {
   DateTime? waktuchange = DateTime.now();
   List<DateTime> waktujam = [];
   List<String> listjam = [];
+  bool sorryyeeee = false;
   final d = Get.put(CloudController());
   var index = -1;
   @override
@@ -41,6 +44,7 @@ class PertanyaanController extends GetxController {
     super.onInit();
     try {
       daftarPertanyaan = Pertanyaan.fromJsonList(box.read("daftarPertanyaan"));
+      petugasTerpilih = Petugas.fromJson(box.read("petugasTerpilih"));
     } catch (e) {}
   }
 
@@ -52,12 +56,10 @@ class PertanyaanController extends GetxController {
 
   void updateSampel(String id) async {
     try {
-      final _gsheets = GSheets(ApiPath.credential);
-      final spreadsheets = await _gsheets
-          .spreadsheet("1_7wRmyZPPuvf1FSTcFq4npu8U1GKByeuK2Sq8ieVY4c");
+      final gsheets = GSheets(ApiPath.credentialSuper);
+      final spreadsheets = await gsheets
+          .spreadsheet("1SeIW94K87vBQazxMHhwAUCf7ihyg7m9MKj5JX4dpHlk");
       datasheetSampel = spreadsheets.worksheetByTitle('sampel')!;
-      // if (datasheetSampel.rowCount == 0) return false;
-      print(values);
       await datasheetSampel.values.map
           .insertRowByKey(
             id,
@@ -65,15 +67,13 @@ class PertanyaanController extends GetxController {
           )
           .then((_) => d.getSampel());
     } catch (e) {
-      // print("cek");
+      // log("cek");
       try {
         var c = box.read("listoffline") as List;
         listoffline = c.map<Map<String, dynamic>>((e) => e).toList();
         index = listoffline.indexWhere((z) => z['id'] == id);
         update();
       } catch (e) {}
-      print(index);
-      print(listoffline);
 
       values['id'] = id;
       values.update("id", (_) => id);
@@ -84,7 +84,6 @@ class PertanyaanController extends GetxController {
       update();
       box.write("listoffline", listoffline);
       d.updatebadges(listoffline.length);
-      print(listoffline);
     }
   }
 
@@ -92,36 +91,36 @@ class PertanyaanController extends GetxController {
     try {
       final _gsheets = GSheets(ApiPath.credential);
       final spreadsheets = await _gsheets
-          .spreadsheet("1_7wRmyZPPuvf1FSTcFq4npu8U1GKByeuK2Sq8ieVY4c");
+          .spreadsheet("1SeIW94K87vBQazxMHhwAUCf7ihyg7m9MKj5JX4dpHlk");
       datasheetSampel = spreadsheets.worksheetByTitle('sampel')!;
 
       if (listoffline.length == 0) {
-        print("kosong");
+        log("kosong");
       } else {
-        print(listoffline);
+        log(listoffline.toString());
         for (int i = 0; i < listoffline.length; i++) {
           await datasheetSampel.values.map.insertRowByKey(
             listoffline[i]["id"],
             listoffline[i],
           );
-          print(listoffline[i]["id"]);
+          log(listoffline[i]["id"]);
         }
-        print("objectku");
+        log("objectku");
       }
     } catch (e) {
-      print(e);
+      log(e.toString());
     }
   }
 
 //update data
   void onUpdate(String id, String value) {
     values[id] = value;
-    print("lalalalaa");
-    print(values);
+    // log("lalalalaa");
     values.update(id, (_) => value);
-    print(values);
+    log(values.toString());
+    // sorryyeeee = mapContainsValues(values, tanya);
+    // log(sorryyeeee.toString());
     update();
-    print(values);
   }
 
 //update pilihan banyak
@@ -153,25 +152,25 @@ class PertanyaanController extends GetxController {
       _locationData = await location.getLocation().then((value) {
         try {
           // final LocationData _locationData = await location.getLocation();
-          print("llllooooo");
+          log("llllooooo");
           // _locationData = await location.getLocation();
           koordinat = "${value.latitude}, ${value.longitude}";
-          print(koordinat);
+          log(koordinat);
           var latDms = converter.getDegreeFromDecimal(value.latitude!);
           var longDms = converter.getDegreeFromDecimal(value.longitude!);
           koordinatDerajat =
               "${latDms[0]}° ${latDms[1]}' ${latDms[2].toStringAsFixed(2)}\", ${longDms[0]}° ${longDms[1]}' ${longDms[2].toStringAsFixed(2)}\"";
           isloading = false;
-          print("ooooo");
+          log("ooooo");
           update();
           onUpdate(id, koordinat);
         } catch (err) {
-          print(err);
+          log(err.toString());
         }
         return value;
       });
     } catch (err) {
-      print(err);
+      log(err.toString());
     }
   }
 
@@ -189,7 +188,7 @@ class PertanyaanController extends GetxController {
       koordinatDerajat =
           "${latDms[0]}° ${latDms[1]}' ${latDms[2].toStringAsFixed(2)}\", ${longDms[0]}° ${longDms[1]}' ${longDms[2].toStringAsFixed(2)}\"";
     } catch (e) {
-      print("tak ada data koordinat");
+      log("tak ada data koordinat");
       koordinatDerajat = "";
     }
     update();
@@ -199,10 +198,8 @@ class PertanyaanController extends GetxController {
   tambahjam(DateTime val) {
     try {
       listjam.add(DateFormat('dd-MM-yyyy HH:mm').format(val));
-      print(val);
     } catch (e) {
-      print("ceko");
-      print(DateTime.now());
+      log("ceko");
       listjam.add(DateFormat('dd-MM-yyyy HH:mm').format(currentTime));
     }
 
@@ -243,5 +240,48 @@ class PertanyaanController extends GetxController {
   ambilhari(String id, String hari) {
     nilaihari = hari;
     update([id]);
+  }
+
+  bool mapContainsValues(Map<String, dynamic> map) {
+    var tanyacacah = [
+      'sPencacahan',
+      'r203k',
+      'r203kp',
+      'catatanKor',
+      'catatanKp',
+      'miskin'
+    ];
+    var tanyaperiksa = [
+      'sPemeriksaan',
+      'art',
+      'keluarMakan',
+      'keluarNonmakan',
+      'komoditasMakan',
+      'komoditasNonmakan',
+      'sDokClean',
+      'catatanKor',
+      'catatanKp',
+      'tglKirim'
+    ];
+    var variable =
+        (petugasTerpilih.status == "PML") ? tanyaperiksa : tanyacacah;
+    Map<String, String> gabunganData = {...map, ...values};
+    log(gabunganData.toString());
+    log(map.toString());
+    log(values.toString());
+    // Iterasi melalui setiap string dalam list variabel
+
+    for (var variable in variable) {
+      // Periksa apakah kunci tersebut ada dalam map dan nilainya tidak null
+      if (!gabunganData.containsKey(variable) ||
+          gabunganData[variable] == null ||
+          gabunganData[variable] == "" ||
+          values.isEmpty) {
+        // Jika tidak, kembalikan false
+        return false;
+      }
+    }
+    // Jika semua variabel memiliki nilai di map, kembalikan true
+    return true;
   }
 }

@@ -3,70 +3,105 @@ part of home;
 
 class HomeController extends GetxController {
   var dataKab = List<Kabupaten>.empty();
+  var kabupatenSementara = '';
+  var pesanerror = '';
   var listKab = List<String>.empty();
   var dataJadwal = List<Jadwal>.empty();
   late Worksheet? datasheetsJadwal;
   var loading = true;
   final box = GetStorage();
-  // Spreadsheet? spreadsheets;
+  bool ganti = true;
 
   @override
   void onInit() {
     super.onInit();
     initializeDateFormatting();
-    getData();
+    // getData();
     try {
       dataJadwal = Jadwal.fromJsonList(box.read("jadwalTerpilih"));
       update();
     } catch (e) {
       getJadwal();
     }
+    try {
+      dataKab = Kabupaten.fromJsonList(box.read("grafik"));
+      update();
+    } catch (e) {
+      getData();
+    }
   }
 
-  void getJadwal() async {
+  Future<bool> getJadwal() async {
     try {
-      final _gsheets = GSheets(ApiPath.credential);
-      final spreadsheets = await _gsheets
-          .spreadsheet("1_7wRmyZPPuvf1FSTcFq4npu8U1GKByeuK2Sq8ieVY4c");
+      final gsheets = GSheets(ApiPath.credentialAlternatif);
+      final spreadsheets = await gsheets
+          .spreadsheet("1SeIW94K87vBQazxMHhwAUCf7ihyg7m9MKj5JX4dpHlk");
       datasheetsJadwal = spreadsheets.worksheetByTitle('jadwal');
       final biodatas =
           await datasheetsJadwal!.values.map.allRows() as List<dynamic>;
       dataJadwal = Jadwal.fromJsonList(biodatas);
       box.write("jadwalTerpilih", biodatas);
       loading = false;
-      print(dataJadwal[1].tanggal);
+      log(dataJadwal[1].tanggal.toString());
       update();
+      return true;
     } catch (e) {
-      print('Init Error yayaya: $e');
+      log('Init Error yayaya: $e');
+      return false;
     }
   }
 
-  void getData() async {
+  Future<bool> getData() async {
+    var cekAsli = await getDataTemp(ApiPath.credential);
+    log("cek tahap kedua");
+    if (!cekAsli) {
+      var cekAlternatif = await getDataTemp(ApiPath.credentialAlternatif);
+      log("cek tahap pertama");
+      if (cekAlternatif) {
+        log("cek salah");
+        return true;
+      } else {
+        log("log salah salah");
+        return false;
+      }
+    } else {
+      return true;
+    }
+  }
+
+  Future<bool> getDataTemp(String credential) async {
     try {
-      final _gsheets = GSheets(ApiPath.credential);
-      final spreadsheets = await _gsheets
-          .spreadsheet("1_7wRmyZPPuvf1FSTcFq4npu8U1GKByeuK2Sq8ieVY4c");
+      final gsheets = GSheets(credential);
+      final spreadsheets = await gsheets
+          .spreadsheet("1SeIW94K87vBQazxMHhwAUCf7ihyg7m9MKj5JX4dpHlk");
 
       final datasheets = spreadsheets.worksheetByTitle('kabupaten');
       final biodatas = await datasheets!.values.map.allRows() as List<dynamic>;
+      try {
+        var cek = Petugas.fromJsonList(box.read("dataPetugas"));
+        log("data sudah ada ${cek.length}");
+      } catch (e) {
+        log("error ini dataPetugas $e");
+      }
+      log("ini cek $kabupatenSementara");
       var dataSheet = Kabupaten.fromJsonList(biodatas);
+      box.write("grafik", biodatas);
       dataKab = dataSheet;
-      print('yeyeye');
       loading = false;
-      // dataKab.refresh();
       update();
+      return true;
     } catch (e) {
-      print('Init Error: $e');
+      pesanerror = e.toString();
+      log('Init Error: $e');
+      return false;
     }
   }
 
-  void ambilkabupaten() {}
+  void ambilkabupaten(String data) {
+    kabupatenSementara = data;
+    update();
+    log("cek ambil kabupaten");
+  }
 
   RefreshController refreshController = RefreshController();
-
-  void refreshData() {
-    getData();
-    getJadwal();
-    refreshController.refreshCompleted();
-  }
 }

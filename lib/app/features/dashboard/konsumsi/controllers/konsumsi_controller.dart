@@ -1,18 +1,21 @@
 part of konsumsi;
 // final Worksheet? datasheets;
 
-class KonsumsiController extends GetxController {
+class KonsumsiController extends GetxController
+    with GetSingleTickerProviderStateMixin {
   var listkomoditi = List<KomoditiData>.empty();
   var listWaktu = List<WaktuData>.empty();
   var listKonversi = List<Konversi>.empty();
   var filterlistKonversi = List<Konversi>.empty();
   var filterlistKonversiNon = List<Konversi>.empty();
   var filterlistkomoditi = List<KomoditiData>.empty();
+  var filterlisttransfer = List<KomoditiData>.empty();
   var filterlistkomoditiNonMakan = List<KomoditiData>.empty();
   var filterlistkomoditiNonMakanAll = List<KomoditiData>.empty();
   var komoditiTerpilih = KomoditiData();
   var rutaTerpilih = Sampel();
   var konsumsiTerpilih = List<Konsumsi>.empty();
+  var cekkonsumsiTerpilih = List<Konsumsi>.empty();
   var filterkonsumsiTerpilih = List<Konsumsi>.empty();
   var dataSampel = List<Sampel>.empty();
   late Spreadsheet? spreadsheets;
@@ -21,7 +24,7 @@ class KonsumsiController extends GetxController {
   final box = GetStorage();
   int indKom = 0;
   int indArt = -1;
-  final Map<String, dynamic> values = {};
+  Map<String, dynamic> values = {};
   Map<String, dynamic> rutaTerpilihMap = {};
   Konsumsi inputKonsumsi = Konsumsi();
   String statusKonsumsi = "";
@@ -31,6 +34,7 @@ class KonsumsiController extends GetxController {
   String watts = "";
   String bnykkwh = "";
   String bnykmkubik = "";
+  String konversiLain = "";
   int artPilihanInd = 0;
   late WaktuData waktu;
   late Konversi konversi;
@@ -51,12 +55,25 @@ class KonsumsiController extends GetxController {
   late FocusNode catatanNode;
   late FocusNode cPengeluaranNode;
   late FocusNode cOopNode;
+  late TabController tabController;
+  int selectabIndex = 0;
   bool isExpanded = false;
   bool editKonsumsi = false;
   int indexk = -1;
   Konsumsi editDataKonsumsi = Konsumsi();
   @override
   void onInit() async {
+    tabController = TabController(vsync: this, length: 5);
+
+    tabController.addListener(() {
+      if (tabController.indexIsChanging) {
+        selectabIndex = tabController.index;
+        update();
+      } else {
+        selectabIndex = tabController.index;
+        update();
+      }
+    });
     cariMakanan = TextEditingController();
     banyakNode = FocusNode();
     hargaNode = FocusNode();
@@ -67,19 +84,21 @@ class KonsumsiController extends GetxController {
     konversi = Konversi();
     satuanHarga = Konversi();
     try {
-      getData();
       listkomoditi = KomoditiData.fromJsonList(box.read("komoditi"));
       filterlistkomoditi = listkomoditi
           .where((element) => element.kategori != "nonmakanan")
           .toList();
-      log("cecek ${filterlistkomoditi.length.toString()}");
       filterlistkomoditiNonMakan = listkomoditi
           .where((element) =>
               element.kategori == "nonmakanan" && element.kelompok == "rincian")
           .toList();
+      filterlisttransfer = listkomoditi
+          .where((element) => element.kategori == "transfer")
+          .toList();
+      log("filterlisttransfer ERROR DISINI");
       update();
     } catch (e) {
-      getData();
+      getKomoditi();
     }
     try {
       petugasTerpilih = Petugas.fromJson(box.read("petugasTerpilih"));
@@ -87,16 +106,21 @@ class KonsumsiController extends GetxController {
     } catch (e) {
       log('Belum ada data $e');
     }
+    // log("logo ${rutaTerpilih.nks!}");
     try {
       dataSampel = Sampel.fromJsonList(box.read("sampelTerpilih"));
-      var cek = dataSampel.where((e) => e.nks == rutaTerpilih.nks).isNotEmpty;
-      if (cek) {
+      try {
         rutaTerpilih = Sampel.fromJson(box.read("rutaTerpilih"));
-        rutaTerpilihMap = rutaTerpilih.toJson();
-      } else {
-        rutaTerpilih = Sampel();
-        rutaTerpilihMap = {};
-      }
+        log("logo ${rutaTerpilih.nks!}");
+        var cek = dataSampel.where((e) => e.nks == rutaTerpilih.nks).isNotEmpty;
+        if (cek) {
+          rutaTerpilih = Sampel.fromJson(box.read("rutaTerpilih"));
+          rutaTerpilihMap = rutaTerpilih.toJson();
+        } else {
+          rutaTerpilih = Sampel();
+          rutaTerpilihMap = {};
+        }
+      } catch (e) {}
 
       update();
     } catch (e) {
@@ -121,6 +145,9 @@ class KonsumsiController extends GetxController {
     try {
       konsumsiTerpilih = Konsumsi.fromJsonList(
           box.read("${rutaTerpilih.nks}-${rutaTerpilih.ruta}"));
+      cekkonsumsiTerpilih = Konsumsi.fromJsonList(
+          box.read("cek-${rutaTerpilih.nks}-${rutaTerpilih.ruta}"));
+
       update();
     } catch (e) {
       konsumsiTerpilih = List<Konsumsi>.empty();
@@ -137,17 +164,10 @@ class KonsumsiController extends GetxController {
     super.onInit();
   }
 
-  @override
-  void dispose() {
-    print('dispose');
-    cariMakanan.dispose();
-    super.dispose();
-  }
-
-  void getData() async {
+  void getKomoditi() async {
     try {
       spreadsheets = await GSheets(ApiPath.credential)
-          .spreadsheet("1_7wRmyZPPuvf1FSTcFq4npu8U1GKByeuK2Sq8ieVY4c");
+          .spreadsheet("1SeIW94K87vBQazxMHhwAUCf7ihyg7m9MKj5JX4dpHlk");
       datasheets = spreadsheets!.worksheetByTitle('komoditi');
       final komoditi = await datasheets!.values.map.allRows() as List<dynamic>;
       listkomoditi = KomoditiData.fromJsonList(komoditi);
@@ -157,6 +177,9 @@ class KonsumsiController extends GetxController {
       filterlistkomoditiNonMakan = listkomoditi
           .where((element) =>
               element.kategori == "nonmakanan" && element.kelompok == "rincian")
+          .toList();
+      filterlisttransfer = listkomoditi
+          .where((element) => element.kategori == "transfer")
           .toList();
       box.write("komoditi", komoditi);
       update();
@@ -168,7 +191,7 @@ class KonsumsiController extends GetxController {
   void getWaktu() async {
     try {
       spreadsheets = await GSheets(ApiPath.credential)
-          .spreadsheet("1_7wRmyZPPuvf1FSTcFq4npu8U1GKByeuK2Sq8ieVY4c");
+          .spreadsheet("1SeIW94K87vBQazxMHhwAUCf7ihyg7m9MKj5JX4dpHlk");
       datasheets = spreadsheets!.worksheetByTitle('waktu');
       final waktu = await datasheets!.values.map.allRows() as List<dynamic>;
       listWaktu = WaktuData.fromJsonList(waktu);
@@ -182,7 +205,7 @@ class KonsumsiController extends GetxController {
   void getKonversi() async {
     try {
       spreadsheets = await GSheets(ApiPath.credential)
-          .spreadsheet("1_7wRmyZPPuvf1FSTcFq4npu8U1GKByeuK2Sq8ieVY4c");
+          .spreadsheet("1SeIW94K87vBQazxMHhwAUCf7ihyg7m9MKj5JX4dpHlk");
       datasheets = spreadsheets!.worksheetByTitle('konversi');
       final konversi = await datasheets!.values.map.allRows() as List<dynamic>;
       listKonversi = Konversi.fromJsonList(konversi);
@@ -216,10 +239,11 @@ class KonsumsiController extends GetxController {
     values.update("namaArt", (_) => rutaTerpilih.namaArt!.join(","));
     values["art"] = rutaTerpilih.namaArt!.length;
     values.update("art", (_) => rutaTerpilih.namaArt!.length);
+    log(values.toString());
     rutaTerpilih = Sampel.conv(rutaTerpilih, values);
     final gsheets = GSheets(ApiPath.credential);
     final spreadsheets = await gsheets
-        .spreadsheet("1_7wRmyZPPuvf1FSTcFq4npu8U1GKByeuK2Sq8ieVY4c");
+        .spreadsheet("1SeIW94K87vBQazxMHhwAUCf7ihyg7m9MKj5JX4dpHlk");
     var datasheetSampel = spreadsheets.worksheetByTitle('sampel')!;
     await datasheetSampel.values.map.insertRowByKey(
       rutaTerpilih.no!,
@@ -228,16 +252,18 @@ class KonsumsiController extends GetxController {
     dataSampel[dataSampel.indexWhere(
             (e) => e.nks == rutaTerpilih.nks && e.ruta == rutaTerpilih.ruta)] =
         rutaTerpilih;
-    update();
     box.write("rutaTerpilih", rutaTerpilih.toJson());
     box.write("sampelTerpilih", Sampel.toJsonList(dataSampel));
+    values = {};
+    log(values.isEmpty.toString());
+    update();
   }
 
   void getSampel() async {
     try {
       final _gsheets = GSheets(ApiPath.credential);
       final spreadsheets = await _gsheets
-          .spreadsheet("1_7wRmyZPPuvf1FSTcFq4npu8U1GKByeuK2Sq8ieVY4c");
+          .spreadsheet("1SeIW94K87vBQazxMHhwAUCf7ihyg7m9MKj5JX4dpHlk");
       var datasheetSampel = spreadsheets.worksheetByTitle('sampel')!;
       final biodatas = await datasheetSampel.values.map.allRows()
           as List<Map<String, String>>;
@@ -266,6 +292,7 @@ class KonsumsiController extends GetxController {
     }
     try {
       konsumsiTerpilih = Konsumsi.fromJsonList(box.read("$nks-$ruta"));
+      cekkonsumsiTerpilih = Konsumsi.fromJsonList(box.read("cek-$nks-$ruta"));
       update();
     } catch (e) {
       konsumsiTerpilih = List<Konsumsi>.empty();
@@ -277,6 +304,23 @@ class KonsumsiController extends GetxController {
   KomoditiData inputKomoditi(int i) {
     indKom = i;
     komoditiTerpilih = filterlistkomoditi[i];
+    filterkonsumsiTerpilih = konsumsiTerpilih
+        .where((e) => e.komoditi == komoditiTerpilih.no)
+        .toList();
+    filterlistKonversi = [
+      Konversi(nama: komoditiTerpilih.satuan, konversi: 1),
+      ...listKonversi.where((e) => e.komoditi == komoditiTerpilih.no).toList()
+    ];
+
+    editKonsumsi = false;
+    editDataKonsumsi = Konsumsi();
+    update();
+    return komoditiTerpilih;
+  }
+
+  KomoditiData inputTransfer(int i) {
+    indKom = i;
+    komoditiTerpilih = filterlisttransfer[i];
     filterkonsumsiTerpilih = konsumsiTerpilih
         .where((e) => e.komoditi == komoditiTerpilih.no)
         .toList();
@@ -337,52 +381,65 @@ class KonsumsiController extends GetxController {
     return komoditiTerpilih;
   }
 
-  void simpan() {
+  KomoditiData pindahTransfer(int i) {
+    komoditiTerpilih = filterlisttransfer[i];
+    // indKom = indKom + i;
+
+    filterkonsumsiTerpilih = konsumsiTerpilih
+        .where((e) => e.komoditi == komoditiTerpilih.no)
+        .toList();
+    clear();
+    editKonsumsi = false;
+    editDataKonsumsi = Konsumsi();
+    update();
+    return komoditiTerpilih;
+  }
+
+  void simpan(bool simpan) {
     var banyakHitung = (double.tryParse(banyakText.text) ??
             0 * ((konversi.konversi == null) ? 1 : konversi.konversi!)) /
         ((waktu.hari == null) ? 1 : waktu.hari! / 7);
     var nilaiHitung = banyakHitung *
         (int.tryParse(hargaText.text.replaceAll(",", "")) ?? 0) /
         ((satuanHarga.konversi == null) ? 1 : satuanHarga.konversi!);
-    konsumsiTerpilih = [
-      ...konsumsiTerpilih,
-      (Konsumsi(
-          nks: rutaTerpilih.nks,
-          ruta: rutaTerpilih.ruta,
-          banyakKonv: banyakText.text,
-          harga: hargaText.text.replaceAll(",", ""),
-          hargaSubsidi: hargaSubsidiText.text.replaceAll(",", ""),
-          komoditi: komoditiTerpilih.no,
-          statusKonsumsi: statusKonsumsi,
-          waktu: (waktu.waktu == null) ? komoditiTerpilih.waktu : waktu.waktu,
-          konversi: (konversi.konversi == null)
-              ? komoditiTerpilih.satuan
-              : konversi.nama,
-          satuanHarga: (satuanHarga.konversi == null)
-              ? komoditiTerpilih.satuan
-              : satuanHarga.nama,
-          banyak: banyakHitung.toStringAsFixed(komoditiTerpilih.digit ?? 2),
-          nilai: nilaiHitung.round().toString(),
-          art: artPilihan,
-          catatan: catatanText.text))
-    ];
+    var simpanini = Konsumsi(
+        nks: rutaTerpilih.nks,
+        ruta: rutaTerpilih.ruta,
+        banyakKonv: banyakText.text,
+        harga: hargaText.text.replaceAll(",", ""),
+        hargaSubsidi: hargaSubsidiText.text.replaceAll(",", ""),
+        komoditi: komoditiTerpilih.no,
+        statusKonsumsi: statusKonsumsi,
+        waktu: (waktu.waktu == null) ? komoditiTerpilih.waktu : waktu.waktu,
+        konversi: (konversi.konversi == null)
+            ? komoditiTerpilih.satuan
+            : konversi.nama,
+        satuanHarga: (satuanHarga.konversi == null)
+            ? komoditiTerpilih.satuan
+            : satuanHarga.nama,
+        banyak: banyakHitung.toStringAsFixed(komoditiTerpilih.digit ?? 2),
+        nilai: nilaiHitung.round().toString(),
+        art: artPilihan,
+        catatan: catatanText.text);
+
+    if (simpan) {
+      konsumsiTerpilih = [...konsumsiTerpilih, simpanini];
+    } else {
+      konsumsiTerpilih[indexk] = simpanini;
+    }
     box.write("${rutaTerpilih.nks}-${rutaTerpilih.ruta}",
         Konsumsi.toJsonList(konsumsiTerpilih));
     filterkonsumsiTerpilih = konsumsiTerpilih
         .where((e) => e.komoditi == komoditiTerpilih.no)
         .toList();
     editDataKonsumsi = Konsumsi();
+    clear();
     update();
-    log(konsumsiTerpilih.length.toString());
-    log(konsumsiTerpilih
-        .map((e) =>
-            "${e.banyakKonv} ${e.harga} ${e.komoditi}-${e.statusKonsumsi}+${e.waktu}#${e.konversi}#${e.satuanHarga}")
-        .toList()
-        .toString());
   }
 
   void simpanNon(bool simpan) {
-    var konversi = (layananPln != "") ? "$layananPln-$watts" : tarifair;
+    var konversi = (layananPln != "") ? "$layananPln-$watts" : konversiLain;
+
     var banyaak = (banyakText.text != "")
         ? banyakText.text
         : (bnykkwh != "")
@@ -418,14 +475,36 @@ class KonsumsiController extends GetxController {
     update();
   }
 
-  void updateKonsumsi() {
-    var banyakHitung = (double.parse(banyakText.text) *
-            ((konversi.konversi == null) ? 1 : konversi.konversi!)) /
-        ((waktu.hari == null) ? 1 : waktu.hari! / 7);
+  void simpanTrf(bool simpan) {
+    var konversi = (layananPln != "") ? "$layananPln-$watts" : konversiLain;
 
-    var nilaiHitung = banyakHitung *
-        int.parse(hargaText.text.replaceAll(",", "")) /
-        ((satuanHarga.konversi == null) ? 1 : satuanHarga.konversi!);
+    var simpanini = Konsumsi(
+        nks: rutaTerpilih.nks,
+        ruta: rutaTerpilih.ruta,
+        harga: hargaText.text.replaceAll(",", ""),
+        hargaSubsidi: hargaSubsidiText.text.replaceAll(",", ""),
+        komoditi: komoditiTerpilih.no,
+        statusKonsumsi: statusKonsumsi,
+        waktu: (waktu.waktu == null) ? komoditiTerpilih.waktu : waktu.waktu,
+        konversi: konversi,
+        banyak: "",
+        nilai: hargaText.text.replaceAll(",", ""),
+        catatan: catatanText.text);
+
+    if (simpan) {
+      konsumsiTerpilih = [...konsumsiTerpilih, simpanini];
+    } else {
+      konsumsiTerpilih[indexk] = simpanini;
+    }
+
+    box.write("${rutaTerpilih.nks}-${rutaTerpilih.ruta}",
+        Konsumsi.toJsonList(konsumsiTerpilih));
+    filterkonsumsiTerpilih = konsumsiTerpilih
+        .where((e) => e.komoditi == komoditiTerpilih.no)
+        .toList();
+    editDataKonsumsi = Konsumsi();
+    clear();
+    update();
   }
 
   void kwh() {
@@ -519,12 +598,13 @@ class KonsumsiController extends GetxController {
     hargaSubsidiText.clear();
     catatanText.clear();
     statusKonsumsi = "";
+    editKonsumsi = false;
     artPilihan = "";
     watts = "";
     layananPln = "";
     bnykkwh = "";
+    konversiLain = "";
     bnykmkubik = "";
-    tarifair = "";
     waktu = WaktuData();
     konversi = Konversi();
     satuanHarga = Konversi();
@@ -570,19 +650,20 @@ class KonsumsiController extends GetxController {
         layananPln = plnsplit[0];
         watts = plnsplit[1];
         bnykkwh = z.banyak!;
-        log("disini ada -");
-        log("${z.konversi}");
       } else {
-        tarifair = z.konversi!;
-        log("tidak ada -");
+        konversiLain = z.konversi!;
       }
     } catch (e) {
       null;
     }
-    log(z.banyak!);
     banyakText = TextEditingController(
-        text: (z.banyakKonv != "") ? z.banyakKonv : z.banyak);
-    hargaText = TextEditingController(text: z.harga);
+        text: (z.banyakKonv == "" || z.banyakKonv == null)
+            ? z.banyak
+            : z.banyakKonv);
+    hargaText = TextEditingController(
+        text: NumberFormat.decimalPattern().format(int.tryParse(z.harga!)));
+    hargaText.selection =
+        TextSelection.collapsed(offset: hargaText.text.length);
     catatanText = TextEditingController(text: z.catatan);
     statusKonsumsi = z.statusKonsumsi!;
     bnykmkubik = z.banyak!;
@@ -594,9 +675,10 @@ class KonsumsiController extends GetxController {
 
   void kirim() async {
     var ty = Konsumsi.toJsonList(konsumsiTerpilih);
+    log("cek kirim ${konsumsiTerpilih == cekkonsumsiTerpilih}");
     final gsheets = GSheets(ApiPath.credential);
     final spreadsheets = await gsheets
-        .spreadsheet("1_7wRmyZPPuvf1FSTcFq4npu8U1GKByeuK2Sq8ieVY4c");
+        .spreadsheet("1SeIW94K87vBQazxMHhwAUCf7ihyg7m9MKj5JX4dpHlk");
     var gsheet = spreadsheets.worksheetByTitle('konsumsi')!;
     var konversi = await gsheet.values.map.allRows() as List<dynamic>;
     var indexGsheets = konversi.indexWhere(
@@ -608,20 +690,29 @@ class KonsumsiController extends GetxController {
     var ee = konsumsiTerpilih.length;
     var uu = ee - ii;
     log("$indexGsheets - $ii - $ee - $uu");
-    if (indexGsheets == -1) {
-      gsheet.values.map.appendRows(ty);
-      log("pertama");
-    } else if (uu < 0) {
-      log("kurangi");
-      gsheet.deleteRow((indexGsheets + 2), count: uu.abs());
-      gsheet.values.map.insertRows((indexGsheets + 2), ty);
-    } else if (uu > 0) {
-      gsheet.insertRow((indexGsheets + 2), count: uu);
-      gsheet.values.map.insertRows(indexGsheets + 2, ty);
-      log("tambah");
-    } else {
-      log("disini dulu ya");
+    try {
+      if (indexGsheets == -1) {
+        gsheet.values.map.appendRows(ty);
+        log("pertama");
+      } else if (uu < 0) {
+        log("kurangi");
+        gsheet.deleteRow((indexGsheets + 2), count: uu.abs());
+        gsheet.values.map.insertRows((indexGsheets + 2), ty);
+      } else if (uu > 0) {
+        gsheet.insertRow((indexGsheets + 2), count: uu);
+        gsheet.values.map.insertRows(indexGsheets + 2, ty);
+        log("tambah");
+      } else {
+        log("disini dulu ya");
+      }
+      cekkonsumsiTerpilih = konsumsiTerpilih;
+      box.write("cek-${rutaTerpilih.nks}-${rutaTerpilih.ruta}",
+          Konsumsi.toJsonList(cekkonsumsiTerpilih));
+    } catch (e) {
+      log(e.toString());
     }
+
+    update();
     log("lolos");
   }
 
@@ -629,7 +720,7 @@ class KonsumsiController extends GetxController {
     try {
       final gsheets = GSheets(ApiPath.credential);
       final spreadsheets = await gsheets
-          .spreadsheet("1_7wRmyZPPuvf1FSTcFq4npu8U1GKByeuK2Sq8ieVY4c");
+          .spreadsheet("1SeIW94K87vBQazxMHhwAUCf7ihyg7m9MKj5JX4dpHlk");
       datasheets = spreadsheets.worksheetByTitle('pertanyaan')!;
       final biodatas = await datasheets!.values.map.allRows() as List<dynamic>;
       var dataSheet = Pertanyaan.fromJsonList(biodatas);

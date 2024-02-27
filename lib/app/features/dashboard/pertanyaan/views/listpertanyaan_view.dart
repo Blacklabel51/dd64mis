@@ -1,12 +1,12 @@
 import 'package:flutter/cupertino.dart';
-import 'package:mysusenas/app/features/dashboard/pertanyaan/views/components/GetCurrentLocation.dart';
-import 'package:mysusenas/app/features/dashboard/pertanyaan/views/components/GetCurrentLocprov.dart';
-import 'package:mysusenas/app/features/dashboard/pertanyaan/views/components/GetDate.dart';
-import 'package:mysusenas/app/features/dashboard/pertanyaan/views/components/selectable_box.dart';
+import 'package:dd64mis/app/features/dashboard/pertanyaan/views/components/GetCurrentLocation.dart';
+import 'package:dd64mis/app/features/dashboard/pertanyaan/views/components/GetCurrentLocprov.dart';
+import 'package:dd64mis/app/features/dashboard/pertanyaan/views/components/GetDate.dart';
+import 'package:dd64mis/app/features/dashboard/pertanyaan/views/components/selectable_box.dart';
 import 'package:intl/intl.dart';
 
 import '../controllers/pertanyaan_controller.dart';
-import 'package:mysusenas/app/features/dashboard/pertanyaan/models/data_model.dart';
+import 'package:dd64mis/app/features/dashboard/pertanyaan/models/data_model.dart';
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:pattern_formatter/pattern_formatter.dart';
@@ -129,26 +129,27 @@ class ListpertanyaanView extends GetView<PertanyaanController> {
                         ),
                         confirm: ElevatedButton(
                             style: ElevatedButton.styleFrom(
-                                minimumSize: Size(120, 50),
-                                primary: Color(0xff3e786f)),
+                                minimumSize: const Size(120, 50),
+                                primary: const Color(0xff3e786f)),
                             onPressed: () {
                               c.onUpdate(pertanyaan.id!, c.koordinattext.text);
                               _formKey.currentState!.save();
                               Get.back();
                             },
-                            child: Text("Simpan",
+                            child: const Text("Simpan",
                                 style: TextStyle(
                                     fontSize: 16,
                                     color: Colors.white,
                                     fontWeight: FontWeight.w700))),
                         cancel: ElevatedButton(
                             style: ElevatedButton.styleFrom(
-                                minimumSize: Size(120, 50),
-                                primary: Color.fromARGB(255, 245, 104, 94)),
+                                minimumSize: const Size(120, 50),
+                                primary:
+                                    const Color.fromARGB(255, 245, 104, 94)),
                             onPressed: () {
                               Get.back();
                             },
-                            child: Text("Batal",
+                            child: const Text("Batal",
                                 style: TextStyle(
                                     fontSize: 16,
                                     color: Colors.white,
@@ -177,7 +178,7 @@ class ListpertanyaanView extends GetView<PertanyaanController> {
                           color: Colors.grey.withOpacity(0.5),
                           spreadRadius: 1,
                           blurRadius: 10,
-                          offset: Offset(0, 5),
+                          offset: const Offset(0, 5),
                         ),
                       ],
                     ),
@@ -188,7 +189,8 @@ class ListpertanyaanView extends GetView<PertanyaanController> {
                           child: Center(
                             child: Column(
                               children: [
-                                Text('Jam :', textAlign: TextAlign.center),
+                                const Text('Jam :',
+                                    textAlign: TextAlign.center),
                                 Container(
                                   height: 120,
                                   child: ListView.builder(
@@ -207,7 +209,7 @@ class ListpertanyaanView extends GetView<PertanyaanController> {
                                                         .join(','));
                                                 print(controller.listjam);
                                               }),
-                                              child: Icon(
+                                              child: const Icon(
                                                 Icons.delete,
                                                 color: Color.fromARGB(
                                                     255, 253, 122, 122),
@@ -229,7 +231,7 @@ class ListpertanyaanView extends GetView<PertanyaanController> {
                             children: [
                               ElevatedButton(
                                 style: ElevatedButton.styleFrom(
-                                  primary: Color(0xffda902a),
+                                  primary: const Color(0xffda902a),
                                 ),
                                 onPressed: () {
                                   controller.tambahjam(DateTime.now());
@@ -238,8 +240,8 @@ class ListpertanyaanView extends GetView<PertanyaanController> {
                                 },
                                 child: Row(
                                   children: [
-                                    Icon(Icons.alarm_add),
-                                    Text(
+                                    const Icon(Icons.alarm_add),
+                                    const Text(
                                       'Jam',
                                     ),
                                   ],
@@ -247,7 +249,7 @@ class ListpertanyaanView extends GetView<PertanyaanController> {
                               ),
                               ElevatedButton(
                                 style: ElevatedButton.styleFrom(
-                                  primary: Color(0xffda902a),
+                                  primary: const Color(0xffda902a),
                                 ),
                                 onPressed: () {
                                   // controller.tambahjam();
@@ -304,8 +306,8 @@ class ListpertanyaanView extends GetView<PertanyaanController> {
                                 },
                                 child: Row(
                                   children: [
-                                    Icon(Icons.edit),
-                                    Text(
+                                    const Icon(Icons.edit),
+                                    const Text(
                                       'Manual',
                                     ),
                                   ],
@@ -379,7 +381,7 @@ class ListpertanyaanView extends GetView<PertanyaanController> {
         );
 
       default:
-        return SizedBox();
+        return const SizedBox();
       // print('It\'s weekend');
     }
   }

@@ -93,15 +93,26 @@ class KonsumsiScreen extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
                         FloatingActionButton.extended(
-                          heroTag: 'cancel',
-                          label: const Text('Batal'),
-                          icon: const Icon(Icons.cancel),
-                          backgroundColor: Colors.pink,
+                          heroTag: 'home',
+                          label: const Text('Home'),
+                          icon: const Icon(Icons.home),
+                          backgroundColor: Colors.blueAccent,
                           onPressed: () {
-                            c.editKonsumsi = false;
                             c.update();
                             c.clear();
                             Get.back();
+                          },
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                        FloatingActionButton.extended(
+                          heroTag: 'clear',
+                          label: const Text('Clear'),
+                          icon: const Icon(Icons.cancel),
+                          backgroundColor: Colors.pink,
+                          onPressed: () {
+                            c.clear();
                           },
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10),
@@ -132,12 +143,9 @@ class KonsumsiScreen extends StatelessWidget {
                                 (c.catatanText.text == "" &&
                                     komoditiData.lainnya == "1")) {
                             } else if (c.editKonsumsi) {
-                              c.editKonsumsi = false;
-                              c.updateKonsumsi();
-                              c.update();
+                              c.simpan(false);
                             } else {
-                              c.simpan();
-                              c.clear();
+                              c.simpan(true);
                             }
                           },
                           shape: RoundedRectangleBorder(
@@ -190,8 +198,9 @@ class KonsumsiScreen extends StatelessWidget {
                               .map((e) => double.tryParse(e.banyak ?? "0") ?? 0)
                               .sum;
                           return Center(
-                            child: Text(
-                                "$b ${komoditiData.satuan} : Rp $a [${c.filterkonsumsiTerpilih.length}]"),
+                            child: Text((c.filterkonsumsiTerpilih.isEmpty)
+                                ? "Tidak ada konsumsi"
+                                : "$b ${komoditiData.satuan} : Rp $a [${c.filterkonsumsiTerpilih.length}]"),
                           );
                         },
                         body: Column(
@@ -537,7 +546,7 @@ class KonsumsiScreen extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(vertical: 8.0),
                         child: Column(
                           children: [
-                            Text(
+                            const Text(
                               "ART yang Konsumsi",
                               style: TeksStyle.judulTanya,
                               textAlign: TextAlign.start,

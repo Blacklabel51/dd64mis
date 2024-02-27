@@ -1,9 +1,9 @@
-import 'package:mysusenas/app/constans/app_constants.dart';
+import 'package:dd64mis/app/constans/app_constants.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class CardCloud extends StatelessWidget {
-  static const height = 280.0;
+  static const height = 200.0;
   const CardCloud({
     required this.title,
     required this.serviceName,

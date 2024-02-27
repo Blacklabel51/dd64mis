@@ -47,4 +47,9 @@ class Pertanyaan {
     if (list.isEmpty) return List<Map<String, dynamic>>.empty();
     return list.map((e) => e.toJson()).toList();
   }
+
+  static List<String> pilihid(List<Pertanyaan> list) {
+    if (list.isEmpty) return List<String>.empty();
+    return list.map((e) => e.id ?? "").toList();
+  }
 }

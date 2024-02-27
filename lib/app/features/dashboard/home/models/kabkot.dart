@@ -20,10 +20,10 @@ class Kabupaten {
   factory Kabupaten.fromJson(Map<String, dynamic> json) => Kabupaten(
         no: json["no"],
         kabkota: json["kabkota"],
-        pPemutakhiran: double.parse(json["pPemutakhiran"]),
-        pPencacahan: double.parse(json["pPencacahan"]),
-        pOlah: double.parse(json["pOlah"]),
-        pPemeriksaan: double.parse(json["pPemeriksaan"]),
+        pPemutakhiran: double.tryParse(json["pPemutakhiran"]) ?? 0,
+        pPencacahan: double.tryParse(json["pPencacahan"]) ?? 0,
+        pOlah: double.tryParse(json["pOlah"]) ?? 0,
+        pPemeriksaan: double.tryParse(json["pPemeriksaan"]) ?? 0,
       );
 
   Map<String, dynamic> toJson() => {
@@ -36,7 +36,7 @@ class Kabupaten {
       };
 
   static List<Kabupaten> fromJsonList(List list) {
-    if (list.length == 0) return List<Kabupaten>.empty();
+    if (list.isEmpty) return List<Kabupaten>.empty();
     return list.map((e) => Kabupaten.fromJson(e)).toList();
   }
 }

@@ -5,6 +5,7 @@ class _Header extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final dataController = Get.put(HomeController());
     return GetBuilder<CloudController>(
         autoRemove: false,
         builder: (controller) => Row(
@@ -12,10 +13,10 @@ class _Header extends StatelessWidget {
               children: [
                 _title(
                     (controller.petugasTerpilih.nama != null)
-                        ? "${controller.petugasTerpilih.nama}/${controller.petugasTerpilih.kodePetugas}/${controller.petugasTerpilih.status}"
+                        ? "${controller.petugasTerpilih.nama}/${controller.petugasTerpilih.status}"
                         : "",
                     context),
-                Spacer(),
+                const Spacer(),
                 SearchButton(onPressed: () {
                   controller.getPetugas();
                   Get.bottomSheet(Padding(
@@ -25,16 +26,38 @@ class _Header extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 30, vertical: 30),
                         color: Colors.white,
-                        height: 200,
+                        height: 250,
                         child: Center(
                           child: ListView(
                             children: [
-                              DropdownSearch<Petugas>(
+                              DropdownSearch<Kabupaten>(
                                 asyncItems: (String? filter) async {
-                                  var kabkota = controller.dataPetugas;
+                                  var kabkota = dataController.dataKab;
+
                                   return kabkota;
                                 },
-                                itemAsString: (Petugas u) => u.nama!,
+                                itemAsString: (Kabupaten u) => u.kabkota!,
+                                onChanged: (value) {
+                                  dataController
+                                      .ambilkabupaten(value!.kabkota!);
+                                },
+                                dropdownDecoratorProps:
+                                    const DropDownDecoratorProps(
+                                        dropdownSearchDecoration:
+                                            InputDecoration(
+                                                labelText: "Pilih Kabupaten")),
+                              ),
+                              DropdownSearch<Petugas>(
+                                asyncItems: (String? filter) async {
+                                  var kabkota = controller.dataPetugas
+                                      .where((element) =>
+                                          element.kabkota ==
+                                          dataController.kabupatenSementara)
+                                      .toList();
+                                  return kabkota;
+                                },
+                                itemAsString: (Petugas u) =>
+                                    "${u.nama!} - ${u.status!}",
                                 onChanged: (value) {
                                   controller.sementaraPetugas(value!);
                                 },
@@ -47,25 +70,32 @@ class _Header extends StatelessWidget {
                               ElevatedButton(
                                   onPressed: () {
                                     Get.defaultDialog(
-                                      content: Lottie.asset(
-                                          'assets/animasi/success.json'),
+                                      content: Align(
+                                        child: SizedBox(
+                                          height: 240,
+                                          child: Lottie.asset(
+                                              'assets/animasi/success.json'),
+                                        ),
+                                      ),
                                       title: "Update Petugas",
                                       confirm: ElevatedButton(
                                           style: ButtonStyle(
                                               backgroundColor:
                                                   MaterialStateProperty.all(
-                                                      Color(0xff3e786f))),
+                                                      const Color(0xff3e786f))),
                                           onPressed: () {
                                             controller.pilihPetugas(
                                                 controller.petugasSementara);
                                             controller.getSampel();
                                             controller.getPertanyaan();
+                                            controller.getUpdating();
+                                            controller.getPetugas();
                                             Get.back(closeOverlays: true);
                                           },
-                                          child: Text("Siap")),
+                                          child: const Text("Siap")),
                                     );
                                   },
-                                  child: Text("Save"))
+                                  child: const Text("Save"))
                             ],
                           ),
                         ),
@@ -76,11 +106,11 @@ class _Header extends StatelessWidget {
   }
 
   Widget _title(String data, context) {
-    return Container(
+    return SizedBox(
       width: MediaQuery.of(context).size.width * 0.7,
       child: Text(
         "Hi, $data",
-        style: TextStyle(fontSize: 20),
+        style: const TextStyle(fontSize: 20),
       ),
     );
   }

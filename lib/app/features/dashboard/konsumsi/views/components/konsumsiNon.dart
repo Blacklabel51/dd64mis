@@ -41,14 +41,17 @@ class KonsumsiNon extends StatelessWidget {
                                     : Warna.cardBlue,
                                 headerBuilder:
                                     (BuildContext context, bool isExpanded) {
-                                  var a = c.filterkonsumsiTerpilih
+                                  var a = NumberFormat.decimalPattern().format(c
+                                      .filterkonsumsiTerpilih
                                       .map((e) =>
                                           double.tryParse(e.nilai ?? "0") ?? 0)
-                                      .sum;
+                                      .sum);
 
                                   return Center(
-                                    child: Text(
-                                        "Rp $a [${c.filterkonsumsiTerpilih.length}]"),
+                                    child: Text((c
+                                            .filterkonsumsiTerpilih.isEmpty)
+                                        ? "Tidak ada konsumsi"
+                                        : "Rp $a [${c.filterkonsumsiTerpilih.length}]"),
                                   );
                                 },
                                 body: Column(
@@ -75,7 +78,7 @@ class KonsumsiNon extends StatelessWidget {
                                                   ),
                                                 ),
                                                 Text(
-                                                  "${e.konversi} : Rp.  ${e.nilai}",
+                                                  "${e.statusKonsumsi} : Rp.  ${NumberFormat.decimalPattern().format(int.tryParse(e.nilai!) ?? 0)}",
                                                   textAlign: TextAlign.start,
                                                 ),
                                                 GestureDetector(
@@ -408,9 +411,9 @@ class KonsumsiNon extends StatelessWidget {
                 spacing: 5,
                 runSpacing: 7,
                 children: ["Rumah Tangga 1", "Rumah Tangga 2", "Rumah Tangga 3"]
-                    .map((e) => SelectableBox(e, isSelected: e == c.tarifair,
-                            onTap: () {
-                          c.tarifair = e;
+                    .map((e) => SelectableBox(e,
+                            isSelected: e == c.konversiLain, onTap: () {
+                          c.konversiLain = e;
                           c.air();
                           c.update();
                         }))
@@ -484,8 +487,9 @@ class KonsumsiNon extends StatelessWidget {
                     onFieldSubmitted: (v) {
                       // FocusScope.of(context).requestFocus(c.hargaNode);
                     },
-                    controller: c.oopText,
+                    controller: c.hargaText,
                     keyboardType: TextInputType.number,
+                    inputFormatters: [ThousandsFormatter()],
                     textInputAction: TextInputAction.next,
                     decoration: InputDecoration(
                       fillColor: const Color(0xffF1F0F5),
@@ -525,10 +529,24 @@ class KonsumsiNon extends StatelessWidget {
                     ),
                     child: Column(
                       children: [
-                        const Text(
-                          "Layanan yang digunakan",
-                          style: TeksStyle.judulTanya,
-                          textAlign: TextAlign.start,
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: [
+                            const Text(
+                              "Layanan yang digunakan",
+                              style: TeksStyle.judulTanya,
+                              textAlign: TextAlign.start,
+                            ),
+                            GestureDetector(
+                                onTap: () {
+                                  c.konversiLain = "";
+                                  c.update();
+                                },
+                                child: const Icon(
+                                  Icons.clear,
+                                  color: Colors.redAccent,
+                                ))
+                          ],
                         ),
                         const SizedBox(height: 10),
                         Wrap(
@@ -540,10 +558,9 @@ class KonsumsiNon extends StatelessWidget {
                                     e.kelompok == "keterangan"))
                                 .map((e) => SelectableBox(
                                       e.rincian!,
-                                      isSelected:
-                                          e.rincian! == c.statusKonsumsi,
+                                      isSelected: e.rincian! == c.konversiLain,
                                       onTap: () {
-                                        c.statusKonsumsi = e.rincian!;
+                                        c.konversiLain = e.rincian!;
                                         c.update();
                                       },
                                       width: 140,

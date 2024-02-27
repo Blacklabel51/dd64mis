@@ -6,16 +6,51 @@ class _Header extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetBuilder<KonsumsiController>(
-        // initState: (state) {
-        //   txtController = TextEditingController();
-        // },
-        // autoRemove: false,
-        builder: (controller) => Stack(
-              alignment: Alignment.center,
-              // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        builder: (c) => Stack(
+              alignment: AlignmentDirectional.center,
               children: [
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: SizedBox(
+                    height: 40,
+                    child: FittedBox(
+                      child: FloatingActionButton.extended(
+                        heroTag: 'send',
+                        label: Text('Kirim ${c.tabController.index}'),
+                        icon: const Icon(Icons.near_me),
+                        backgroundColor:
+                            ((c.values.isNotEmpty && c.selectabIndex == 0) ||
+                                    ((c.selectabIndex < 4) &&
+                                        (c.konsumsiTerpilih !=
+                                            c.cekkonsumsiTerpilih)))
+                                ? Colors.greenAccent
+                                : Colors.grey,
+                        onPressed: () {
+                          if (c.selectabIndex == 0) {
+                            (c.values.isNotEmpty)
+                                ? c.simpanArt()
+                                : Get.snackbar(
+                                    "Perhatian", "Tidak ada Perubahan",
+                                    snackPosition: SnackPosition.BOTTOM,
+                                    duration: const Duration(seconds: 2));
+                          } else if (c.selectabIndex < 4) {
+                            c.kirim();
+                          } else {
+                            Get.snackbar("Perhatian", "Belum ada isinya",
+                                snackPosition: SnackPosition.BOTTOM,
+                                duration: const Duration(seconds: 2));
+                          }
+                        },
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
                 GestureDetector(
                     onTap: () {
+                      log(c.dataSampel.length.toString());
                       Get.defaultDialog(
                           title: ("Pilih Rumah Tangga"),
                           content: GetBuilder<KonsumsiController>(
@@ -68,39 +103,36 @@ class _Header extends StatelessWidget {
                                   )));
                     },
                     child: Align(
-                        child: _title((controller.rutaTerpilih.namaRuta == null)
-                            ? "No Name"
-                            : controller.rutaTerpilih.namaRuta!))),
+                        alignment: Alignment.center,
+                        child: _title((c.rutaTerpilih.namaRuta == null)
+                            ? "Belum Pilih Ruta"
+                            : c.rutaTerpilih.namaRuta!))),
                 SearchBarAnimation(
                     // hintText: "Cari Disini",
                     enableKeyboardFocus: true,
                     durationInMilliSeconds: 500,
-                    textEditingController: controller.cariMakanan,
+                    secondaryButtonWidget: const Icon(Icons.search),
+                    textEditingController: c.cariMakanan,
                     isOriginalAnimation: false,
                     buttonBorderColour: Colors.black45,
-                    buttonIcon: Icons.search,
+                    trailingWidget: const Icon(Icons.search),
+                    buttonWidget: const Icon(Icons.search),
                     onChanged: (text) {
-                      controller.search(text);
+                      c.search(text);
                     },
                     onCollapseComplete: () {
-                      print("close ini");
-                      controller.cariMakanan.clear();
-                      controller.search('');
+                      c.cariMakanan.clear();
+                      c.search('');
                     },
-                    isSearchBoxOnRightSide: true),
+                    isSearchBoxOnRightSide: false),
               ],
             ));
   }
 
   Widget _title(String data) {
-    return Row(
-      children: [
-        Icon(Icons.arrow_drop_down_circle_outlined),
-        Text(
-          data,
-          style: TextStyle(fontSize: 20),
-        ),
-      ],
+    return Text(
+      data,
+      style: TeksStyle.judul,
     );
   }
 }

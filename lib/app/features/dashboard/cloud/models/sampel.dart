@@ -3,6 +3,7 @@ part of cloud;
 class Sampel {
   Sampel({
     this.no,
+    this.kabkota,
     this.nks,
     this.ruta,
     this.namaRuta,
@@ -20,6 +21,9 @@ class Sampel {
     this.miskin,
     this.desa,
     this.bs,
+    this.art,
+    this.komoditasMakan,
+    this.komoditasNonmakan,
     this.balita = false,
     this.wanitaSubur = false,
     this.supir = false,
@@ -39,9 +43,11 @@ class Sampel {
     this.kb = false,
     this.asuransi = false,
     this.namaArt,
+    this.sls,
   });
 
   String? no;
+  String? kabkota;
   String? nks;
   String? ruta;
   String? namaRuta;
@@ -59,6 +65,9 @@ class Sampel {
   String? miskin;
   String? desa;
   String? bs;
+  String? art;
+  String? komoditasMakan;
+  String? komoditasNonmakan;
   bool balita;
   bool wanitaSubur;
   bool supir;
@@ -78,9 +87,11 @@ class Sampel {
   bool kb;
   bool asuransi;
   List<String>? namaArt;
+  String? sls;
 
   factory Sampel.fromJson(Map<String, dynamic> json) => Sampel(
       no: json["no"],
+      kabkota: json["kabkota"],
       nks: json["nks"],
       ruta: json["ruta"],
       namaRuta: json["namaRuta"],
@@ -98,6 +109,10 @@ class Sampel {
       miskin: json["miskin"],
       desa: json["desa"],
       bs: json["bs"],
+      art: json["art"],
+      sls: json["sls"],
+      komoditasMakan: json["komoditasMakan"],
+      komoditasNonmakan: json["komoditasNonmakan"],
       balita: json['balita'].toString().toLowerCase() == "true",
       wanitaSubur: json['wanitaSubur'].toString().toLowerCase() == "true",
       supir: json['supir'].toString().toLowerCase() == "true",
@@ -122,6 +137,7 @@ class Sampel {
 
   factory Sampel.conv(Sampel sampel, Map<String, dynamic> values) => Sampel(
         no: sampel.no,
+        kabkota: sampel.kabkota,
         nks: sampel.nks,
         ruta: sampel.ruta,
         namaRuta: sampel.namaRuta,
@@ -139,6 +155,10 @@ class Sampel {
         miskin: sampel.miskin,
         desa: sampel.desa,
         bs: sampel.bs,
+        art: sampel.art,
+        sls: sampel.sls,
+        komoditasMakan: sampel.komoditasMakan,
+        komoditasNonmakan: sampel.komoditasNonmakan,
         balita: (values["balita"] == null) ? sampel.balita : values["balita"],
         wanitaSubur: (values["wanitaSubur"] == null)
             ? sampel.wanitaSubur
@@ -177,6 +197,7 @@ class Sampel {
 
   Map<String, dynamic> toJson() => {
         "no": no,
+        "kabkota": kabkota,
         "nks": nks,
         "ruta": ruta,
         "namaRuta": namaRuta,
@@ -194,6 +215,9 @@ class Sampel {
         "miskin": miskin,
         "desa": desa,
         "bs": bs,
+        "art": art,
+        "komoditasMakanan": komoditasMakan,
+        "komoditasNonmakan": komoditasNonmakan,
         'balita': balita,
         'wanitaSubur': wanitaSubur,
         'supir': supir,
@@ -212,7 +236,8 @@ class Sampel {
         'lpg': lpg,
         'kb': kb,
         'asuransi': asuransi,
-        'namaArt': namaArt
+        'namaArt': namaArt,
+        'sls': sls
       };
 
   static List<Sampel> fromJsonList(List list) {

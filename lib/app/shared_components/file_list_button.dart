@@ -1,6 +1,6 @@
-import 'package:mysusenas/app/features/dashboard/home/views/screens/home_screen.dart';
-import 'package:mysusenas/app/shared_components/file_type_icon.dart';
-import 'package:mysusenas/app/utils/helpers/app_helpers.dart';
+import 'package:dd64mis/app/features/dashboard/home/views/screens/home_screen.dart';
+import 'package:dd64mis/app/shared_components/file_type_icon.dart';
+import 'package:dd64mis/app/utils/helpers/app_helpers.dart';
 import 'package:filesize/filesize.dart';
 import 'package:flutter/material.dart';
 

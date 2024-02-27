@@ -4,8 +4,8 @@ import 'dart:developer';
 
 import 'package:get_storage/get_storage.dart';
 import 'package:grouped_list/grouped_list.dart';
-import 'package:mysusenas/app/constans/app_constants.dart';
-import 'package:mysusenas/app/features/dashboard/cloud/views/screens/cloud_screen.dart';
+import 'package:dd64mis/app/constans/app_constants.dart';
+import 'package:dd64mis/app/features/dashboard/cloud/views/screens/cloud_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:gsheets/gsheets.dart';
@@ -32,6 +32,7 @@ part '../../models/waktu.dart';
 part '../../models/konversi.dart';
 part '../../models/art.dart';
 part '../../models/pertanyaan.dart';
+part '../../models/pendapatan_model.dart';
 
 // component
 part '../components/header.dart';
@@ -40,11 +41,14 @@ part '../components/card_data.dart';
 part '../components/foto_zoom.dart';
 part '../components/selectable_box.dart';
 part '../components/konsumsiNon.dart';
+part '../components/pendapatan.dart';
+part '../components/pendapatan_gaji.dart';
+part '../components/pendapatan_usaha.dart';
 
 //screens
 part 'konsumsi_screen.dart';
 part 'komoditas_screen.dart';
-part 'konsumsiNon_screen.dart';
+part 'konsumsinon_screen.dart';
 part 'pendapatan_screen.dart';
 
 class KomoditiScreen extends StatelessWidget {
@@ -62,28 +66,21 @@ class KomoditiScreen extends StatelessWidget {
                 child: SmartRefresher(
                   controller: controller.refreshController,
                   onRefresh: () {
-                    controller.getData();
+                    controller.getKomoditi();
                     controller.refreshController.refreshCompleted();
                   },
-                  child: CustomScrollView(
-                    physics: const BouncingScrollPhysics(),
-                    shrinkWrap: true,
-                    slivers: [
-                      SliverList(
-                        delegate: SliverChildListDelegate(
-                          [
-                            Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 2),
-                              child: _Header(),
-                            ),
-                            SizedBox(
-                              height:
-                                  Get.height - 100 - (2 * kDefaultSpacing) - 20,
-                              child: const _Tabbar(),
-                            ),
-                          ],
+                  child: Column(
+                    children: [
+                      SizedBox(
+                        height: 68 - (2 * kDefaultSpacing),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 2),
+                          child: _Header(),
                         ),
+                      ),
+                      SizedBox(
+                        height: Get.height - (160 - (2 * kDefaultSpacing)),
+                        child: const _Tabbar(),
                       ),
                     ],
                   ),

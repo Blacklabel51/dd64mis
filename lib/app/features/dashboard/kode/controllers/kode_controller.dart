@@ -17,15 +17,6 @@ class KodeController extends GetxController {
   void onInit() async {
     textController = TextEditingController();
     try {
-      spreadsheets = await GSheets(ApiPath.credential)
-          .spreadsheet("1_7wRmyZPPuvf1FSTcFq4npu8U1GKByeuK2Sq8ieVY4c");
-      datasheets = spreadsheets!.worksheetByTitle('kode');
-      update();
-    } catch (e) {
-      print("tidak ada data");
-    }
-    super.onInit();
-    try {
       listKode = Kode.fromJsonList(box.read("kode"));
       filterlistKode = listKode;
       update();
@@ -38,6 +29,7 @@ class KodeController extends GetxController {
     } catch (e) {
       print('Belum ada data $e');
     }
+    super.onInit();
   }
 
   @override
@@ -49,6 +41,9 @@ class KodeController extends GetxController {
 
   void getData() async {
     try {
+      spreadsheets = await GSheets(ApiPath.credential)
+          .spreadsheet("1SeIW94K87vBQazxMHhwAUCf7ihyg7m9MKj5JX4dpHlk");
+      datasheets = spreadsheets!.worksheetByTitle('kode');
       final kode = await datasheets!.values.map.allRows() as List<dynamic>;
       listKode = Kode.fromJsonList(kode);
       filterlistKode = listKode;
@@ -111,6 +106,9 @@ class KodeController extends GetxController {
     update();
     var uuid = const Uuid();
     try {
+      spreadsheets = await GSheets(ApiPath.credential)
+          .spreadsheet("1SeIW94K87vBQazxMHhwAUCf7ihyg7m9MKj5JX4dpHlk");
+      datasheets = spreadsheets!.worksheetByTitle('kode');
       await datasheets!.values.map.insertRowByKey(uuid.v4(), {
         "pertanyaan": tanya,
         "status": "tanya",

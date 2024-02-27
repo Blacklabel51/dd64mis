@@ -10,10 +10,13 @@ class CloudController extends GetxController {
   var petugasSementara = Petugas();
 
   var dataSampel = List<Sampel>.empty();
+  var dataUpdating = List<Updating>.empty();
   var sampelSimpanan = List<dynamic>.empty();
   var dataSampelan = List<Map<String, dynamic>>.empty();
+  var dataUpdatingan = List<Map<String, dynamic>>.empty();
 
   var dataPertanyaan = List<Pertanyaan>.empty();
+  var dataGk = Gk();
   var daftarPertanyaan = List<Pertanyaan>.empty();
   var daftarPertanyaanRuta = List<Pertanyaan>.empty();
 
@@ -30,24 +33,40 @@ class CloudController extends GetxController {
   Map<String, dynamic> values = {};
 
   int badgesoffline = 0;
+
+  var pesanerror = '';
   @override
   void onInit() async {
     super.onInit();
     getSampel();
+    getUpdating();
     try {
       petugasTerpilih = Petugas.fromJson(box.read("petugasTerpilih"));
       dataSampel = Sampel.fromJsonList(box.read("sampelTerpilih"));
+      dataUpdating = Updating.fromJsonList(box.read("updatingsTerpilih"));
 
       daftarPertanyaan = Pertanyaan.fromJsonList(box.read("daftarPertanyaan"));
       update();
+      log("disini petugas terpilih");
     } catch (e) {
-      log('Belum ada data $e');
+      log('Belum ada data petugas terpilih $e');
     }
     try {
       var c = box.read("sampelTerpilih") as List;
       dataSampelan = c.map<Map<String, dynamic>>((e) => e).toList();
     } catch (e) {
       dataSampelan = List<Map<String, dynamic>>.empty();
+    }
+    try {
+      dataGk = Gk.fromJson(box.read("gk2022"));
+    } catch (e) {
+      log('Belum ada data garis kemiskinan$e');
+    }
+    try {
+      var c = box.read("updatingTerpilih") as List;
+      dataUpdatingan = c.map<Map<String, dynamic>>((e) => e).toList();
+    } catch (e) {
+      dataUpdatingan = List<Map<String, dynamic>>.empty();
     }
     try {
       dataFenomena = Fenomena.fromJsonList(box.read("fenomenaTerpilih"));
@@ -65,11 +84,11 @@ class CloudController extends GetxController {
     }
   }
 
-  void getPetugas() async {
+  Future<bool> getPetugas() async {
     try {
-      final gsheets = GSheets(ApiPath.credential);
+      final gsheets = GSheets(ApiPath.credentialAlternatif);
       final spreadsheets = await gsheets
-          .spreadsheet("1_7wRmyZPPuvf1FSTcFq4npu8U1GKByeuK2Sq8ieVY4c");
+          .spreadsheet("1SeIW94K87vBQazxMHhwAUCf7ihyg7m9MKj5JX4dpHlk");
       datasheetPetugas = spreadsheets.worksheetByTitle('petugas')!;
       final biodatas =
           await datasheetPetugas!.values.map.allRows() as List<dynamic>;
@@ -78,16 +97,18 @@ class CloudController extends GetxController {
       box.write("dataPetugas", biodatas);
       update();
       log(dataPetugas.length.toString());
+      return true;
     } catch (e) {
       log('Init Error get Petugas: $e');
+      return false;
     }
   }
 
-  void getSampel() async {
+  Future<bool> getSampel() async {
     try {
-      final gsheets = GSheets(ApiPath.credential);
+      final gsheets = GSheets(ApiPath.credentialAlternatif);
       final spreadsheets = await gsheets
-          .spreadsheet("1_7wRmyZPPuvf1FSTcFq4npu8U1GKByeuK2Sq8ieVY4c");
+          .spreadsheet("1SeIW94K87vBQazxMHhwAUCf7ihyg7m9MKj5JX4dpHlk");
       datasheetSampel = spreadsheets.worksheetByTitle('sampel')!;
       final biodatas = await datasheetSampel.values.map.allRows()
           as List<Map<String, String>>;
@@ -95,19 +116,47 @@ class CloudController extends GetxController {
           .where((e) => (petugasTerpilih.status == "PCL")
               ? (e["kodePcl"] == petugasTerpilih.kodePetugas &&
                   e["kabkota"] == petugasTerpilih.kodekabkota)
-              : e["kodePml"] == petugasTerpilih.kodePetugas &&
-                  e["kabkota"] == petugasTerpilih.kodekabkota)
+              : (petugasTerpilih.status == "PML")
+                  ? (e["kodePml"] == petugasTerpilih.kodePetugas &&
+                      e["kabkota"] == petugasTerpilih.kodekabkota)
+                  : e["kabkota"] == petugasTerpilih.kodekabkota)
           .toList();
       dataSampel = Sampel.fromJsonList(dataSampelan);
       update();
       box.write("sampelTerpilih", dataSampelan);
-      log("message");
-      log(dataSampel
-          .map((e) =>
-              "${e.nks}-${e.ruta}-${e.namaArt}-${e.namaArt!.length.toString()}")
-          .toString());
+      log("sampelTerpilih ada kok");
+      return true;
     } catch (e) {
       log('Init Error get Sampel: $e');
+      pesanerror = e.toString();
+      return false;
+    }
+  }
+
+  Future<bool> getUpdating() async {
+    try {
+      final gsheets = GSheets(ApiPath.credentialAlternatif);
+      final spreadsheets = await gsheets
+          .spreadsheet("1SeIW94K87vBQazxMHhwAUCf7ihyg7m9MKj5JX4dpHlk");
+      var datasheetSampel = spreadsheets.worksheetByTitle('updating')!;
+      final biodatas = await datasheetSampel.values.map.allRows()
+          as List<Map<String, String>>;
+      dataUpdatingan = biodatas
+          .where((e) => (petugasTerpilih.status == "PCL")
+              ? (e["kodePcl"] == petugasTerpilih.kodePetugas &&
+                  e["kabkota"] == petugasTerpilih.kodekabkota)
+              : (petugasTerpilih.status == "PML")
+                  ? (e["kodePml"] == petugasTerpilih.kodePetugas &&
+                      e["kabkota"] == petugasTerpilih.kodekabkota)
+                  : e["kabkota"] == petugasTerpilih.kodekabkota)
+          .toList();
+      dataUpdating = Updating.fromJsonList(dataUpdatingan);
+      update();
+      box.write("updatingTerpilih", dataUpdatingan);
+      return true;
+    } catch (e) {
+      log('Init Error get Updating: $e');
+      return false;
     }
   }
 
@@ -128,9 +177,30 @@ class CloudController extends GetxController {
   }
 
   Future<bool> updateSampel(String id, Map<String, dynamic> kirim) async {
+    final gcsheets = GSheets(ApiPath.credentialSuper);
+    final spreadsheets = await gcsheets
+        .spreadsheet("1SeIW94K87vBQazxMHhwAUCf7ihyg7m9MKj5JX4dpHlk");
+    log("input data");
+    var data = spreadsheets.worksheetByTitle('sampel')!;
     try {
-      if (datasheetSampel.rowCount == 0) return false;
-      return await datasheetSampel.values.map.insertRowByKey(
+      if (data.rowCount == 0) return false;
+      return await data.values.map.insertRowByKey(
+        id,
+        kirim,
+      );
+    } catch (e) {
+      return false;
+    }
+  }
+
+  Future<bool> updatePemutakhiran(String id, Map<String, dynamic> kirim) async {
+    final gsheets = GSheets(ApiPath.credentialAlternatif);
+    final spreadsheets = await gsheets
+        .spreadsheet("1SeIW94K87vBQazxMHhwAUCf7ihyg7m9MKj5JX4dpHlk");
+    var datasheetUpdating = spreadsheets.worksheetByTitle('updating')!;
+    try {
+      if (datasheetUpdating.rowCount == 0) return false;
+      return await datasheetUpdating.values.map.insertRowByKey(
         id,
         kirim,
       );
@@ -143,7 +213,7 @@ class CloudController extends GetxController {
     try {
       final gsheets = GSheets(ApiPath.credential);
       final spreadsheets = await gsheets
-          .spreadsheet("1_7wRmyZPPuvf1FSTcFq4npu8U1GKByeuK2Sq8ieVY4c");
+          .spreadsheet("1SeIW94K87vBQazxMHhwAUCf7ihyg7m9MKj5JX4dpHlk");
       datasheetPertanyaan = spreadsheets.worksheetByTitle('pertanyaan')!;
       final biodatas =
           await datasheetPertanyaan!.values.map.allRows() as List<dynamic>;
@@ -162,13 +232,69 @@ class CloudController extends GetxController {
     }
   }
 
+  Future<bool> getGk() async {
+    try {
+      final gsheets = GSheets(ApiPath.credentialAlternatif);
+      final spreadsheets = await gsheets
+          .spreadsheet("1SeIW94K87vBQazxMHhwAUCf7ihyg7m9MKj5JX4dpHlk");
+      datasheetPertanyaan = spreadsheets.worksheetByTitle('garis kemiskinan')!;
+      final biodatas =
+          await datasheetPertanyaan!.values.map.allRows() as List<dynamic>;
+      var dataSheet = Gk.fromJsonList(biodatas);
+      dataGk =
+          dataSheet.firstWhere((e) => (e.kode == petugasTerpilih.kodekabkota));
+      box.write("gk2022", dataGk.toJson());
+      update();
+      log('Garis Kemiskinan nih bos: ${dataGk.kabkota}-${dataGk.gk2022}');
+      return true;
+    } catch (e) {
+      log('Init Error get Garis Kemiskinan: $e');
+      return false;
+    }
+  }
+
   RefreshController refreshController = RefreshController();
 
   void refreshData() {
-    getSampel();
-    getPetugas();
-    refreshController.refreshCompleted();
+    Future(() async {
+      var a = await getSampel();
+      var b = await getPetugas();
+      var c = await getGk();
+      // var d = await getUpdating();
+      if (a || b || c) {
+        return true;
+      } else {
+        return false;
+      }
+    }).then((value) {
+      if (value) {
+        refreshController.refreshCompleted();
+        Get.showSnackbar(const GetSnackBar(
+            message: "Berhasil",
+            backgroundColor: Colors.greenAccent,
+            duration: Duration(seconds: 3)));
+      } else {
+        refreshController.refreshFailed();
+        Get.showSnackbar(GetSnackBar(
+            message: pesanerror,
+            backgroundColor: Colors.orange,
+            duration: const Duration(seconds: 3)));
+      }
+    }).timeout(const Duration(seconds: 30), onTimeout: () {
+      refreshController.refreshToIdle();
+      Get.showSnackbar(const GetSnackBar(
+          message: "Refresh ulang ki",
+          backgroundColor: Colors.grey,
+          duration: Duration(seconds: 3)));
+    });
   }
+
+  // {
+  //   getSampel();
+  //   getPetugas();
+  //   getGk();
+  //   refreshController.refreshCompleted();
+  // }
 
   TextEditingController sPencacahan = TextEditingController();
   TextEditingController sDokClean = TextEditingController();
@@ -200,7 +326,7 @@ class CloudController extends GetxController {
     try {
       final gsheets = GSheets(ApiPath.credential);
       final spreadsheets = await gsheets
-          .spreadsheet("1_7wRmyZPPuvf1FSTcFq4npu8U1GKByeuK2Sq8ieVY4c");
+          .spreadsheet("1SeIW94K87vBQazxMHhwAUCf7ihyg7m9MKj5JX4dpHlk");
       datasheetSampel = spreadsheets.worksheetByTitle('sampel')!;
       var c = box.read("listoffline") as List;
       var dataoffline = c.map<Map<String, dynamic>>((e) => e).toList();
@@ -231,7 +357,7 @@ class CloudController extends GetxController {
     try {
       final gsheets = GSheets(ApiPath.credential);
       final spreadsheets = await gsheets
-          .spreadsheet("1_7wRmyZPPuvf1FSTcFq4npu8U1GKByeuK2Sq8ieVY4c");
+          .spreadsheet("1SeIW94K87vBQazxMHhwAUCf7ihyg7m9MKj5JX4dpHlk");
       datasheetsFenomena = spreadsheets.worksheetByTitle('fenomena');
       final biodatas =
           await datasheetsFenomena!.values.map.allRows() as List<dynamic>;

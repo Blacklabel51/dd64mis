@@ -1,4 +1,8 @@
-import 'package:mysusenas/app/features/dashboard/cloud/views/screens/cloud_screen.dart';
+import 'dart:math';
+
+import 'package:dd64mis/app/constans/app_constants.dart';
+import 'package:dd64mis/app/features/dashboard/cloud/views/screens/cloud_screen.dart';
+import 'package:dd64mis/app/features/dashboard/pertanyaan/models/data_model.dart';
 import 'package:flutter/material.dart';
 
 import 'package:get/get.dart';
@@ -16,11 +20,13 @@ class PertanyaanView extends GetView<PertanyaanController> {
   Widget build(BuildContext context) {
     final c = Get.put(PertanyaanController());
     GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+
+    print(Pertanyaan.pilihid(c.daftarPertanyaan));
     return Scaffold(
-        backgroundColor: Color(0xfff6f1eb),
+        backgroundColor: const Color(0xfff6f1eb),
         body: SafeArea(
             child: CustomScrollView(
-                physics: BouncingScrollPhysics(),
+                physics: const BouncingScrollPhysics(),
                 shrinkWrap: true,
                 slivers: [
               SliverList(
@@ -31,12 +37,12 @@ class PertanyaanView extends GetView<PertanyaanController> {
                     child: Stack(children: [
                       GestureDetector(
                           onTap: () => Get.back(),
-                          child: Icon(Icons.arrow_back_ios,
+                          child: const Icon(Icons.arrow_back_ios,
                               color: Color(0xff575171))),
-                      SizedBox(width: 10),
+                      const SizedBox(width: 10),
                       Center(
                           child: Text("${inputData["namaRuta"]}",
-                              style: TextStyle(
+                              style: const TextStyle(
                                   color: Colors.black,
                                   fontWeight: FontWeight.w300,
                                   fontSize: 20)))
@@ -52,31 +58,33 @@ class PertanyaanView extends GetView<PertanyaanController> {
                   Padding(
                       padding: const EdgeInsets.symmetric(
                           horizontal: 20, vertical: 40),
-                      child: ElevatedButton(
-                          style: ButtonStyle(
-                              backgroundColor:
-                                  MaterialStateProperty.all(Color(0xff3e786f))),
-                          onPressed: () {
-                            if (_formKey.currentState!.validate()) {
-                              print("valid");
-                            }
-                            c.updateSampel(inputData["no"]!);
-                            Get.defaultDialog(
-                              content:
-                                  Lottie.asset('assets/animasi/success.json'),
-                              title: "Input Data",
-                              confirm: ElevatedButton(
-                                  style: ButtonStyle(
-                                      backgroundColor:
-                                          MaterialStateProperty.all(
-                                              Color(0xff3e786f))),
-                                  onPressed: () {
-                                    Get.back(closeOverlays: true);
-                                  },
-                                  child: Text("Siap")),
-                            );
-                          },
-                          child: Text("Save")))
+                      child: GetBuilder<PertanyaanController>(
+                          builder: (controller) {
+                        return FilledButton(
+                            onPressed: c.mapContainsValues(inputData)
+                                ? () {
+                                    c.updateSampel(inputData["no"]!);
+                                    Get.defaultDialog(
+                                      content: Align(
+                                          child: SizedBox(
+                                              height: 240,
+                                              child: Lottie.asset(
+                                                  'assets/animasi/success.json'))),
+                                      title: "Input Data",
+                                      confirm: ElevatedButton(
+                                          style: ButtonStyle(
+                                              backgroundColor:
+                                                  MaterialStateProperty.all(
+                                                      const Color(0xff3e786f))),
+                                          onPressed: () {
+                                            Get.back(closeOverlays: true);
+                                          },
+                                          child: const Text("Siap")),
+                                    );
+                                  }
+                                : null,
+                            child: const Text("Save"));
+                      }))
                 ],
               ))
             ])));

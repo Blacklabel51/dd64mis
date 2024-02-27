@@ -8,8 +8,21 @@ class _CardMiskin extends StatelessWidget {
   final List<Map<String, dynamic>> dataSampelan;
   String pengeluaran = "";
   bool kosong = false;
+  final box = GetStorage();
+  String dataGk = '';
+  String kabkotaGk = '';
   @override
   Widget build(BuildContext context) {
+    try {
+      var gk2022 = Gk.fromJson(box.read("gk2022"));
+      dataGk = NumberFormat.decimalPattern()
+          .format(((int.tryParse(gk2022.gk2022!) ?? 0).round()));
+      kabkotaGk = gk2022.kabkota ?? '';
+      print("disini error tp boong $dataGk");
+    } catch (e) {
+      print("disini error");
+    }
+
     return Container(
         height: MediaQuery.of(context).size.height,
         color: Colors.white,
@@ -90,14 +103,14 @@ class _CardMiskin extends StatelessWidget {
                                                 decoration: BoxDecoration(
                                                   borderRadius:
                                                       BorderRadius.circular(2),
-                                                  color: (dataini["miskin"] ==
-                                                          'Miskin')
-                                                      ? Colors.amberAccent
-                                                      : Colors.greenAccent,
+                                                  color:
+                                                      (data.miskin == 'Miskin')
+                                                          ? Colors.amberAccent
+                                                          : Colors.greenAccent,
                                                 ),
                                                 padding:
                                                     const EdgeInsets.all(5),
-                                                child: Text(dataini["miskin"]),
+                                                child: Text(data.miskin!),
                                               ),
                                             )
                                           ],
@@ -131,8 +144,7 @@ class _CardMiskin extends StatelessWidget {
                                                         borderRadius:
                                                             BorderRadius
                                                                 .circular(2),
-                                                        color: (dataini[
-                                                                    "sMiskin"] ==
+                                                        color: (data.sMiskin ==
                                                                 'Miskin')
                                                             ? Colors.amberAccent
                                                             : Colors
@@ -142,7 +154,7 @@ class _CardMiskin extends StatelessWidget {
                                                           const EdgeInsets.all(
                                                               5),
                                                       child: Text(
-                                                          dataini["sMiskin"]),
+                                                          data.sMiskin ?? ""),
                                                     ),
                                                   )
                                                 ],
@@ -150,7 +162,7 @@ class _CardMiskin extends StatelessWidget {
                                         const SizedBox(height: 20),
                                         const Text("Keterangan:"),
                                         Text(
-                                            "1. Nilai pengeluaran per kapita per bulan: Rp.$pengeluaran. Jumlah komoditas makanan: ${dataini['komoditasMakan']}. Jumlah komoditas bukan makanan: ${dataini['komoditasNonmakan']}.\n Cek kembali dokumen, kelengkapan (komoditas yang terisi) dan kewajaran isian dst.\n2. Lakukan revisit ke rumah tangga jika diperlukan\n3. Tambahkan catatan di Blok Catatan terkait kondisi rumah tangga jika seluruh isian sudah sesuai",
+                                            "1. Nilai pengeluaran per kapita per bulan: Rp.$pengeluaran lebih kecil dari Garis Kemiskinan $kabkotaGk yaitu Rp.$dataGk. Jumlah komoditas makanan: ${dataini['komoditasMakan']}. Jumlah komoditas bukan makanan: ${dataini['komoditasNonmakan']}.\n Cek kembali dokumen, kelengkapan (komoditas yang terisi) dan kewajaran isian dst.\n2. Lakukan revisit ke rumah tangga jika diperlukan\n3. Tambahkan catatan di Blok Catatan terkait kondisi rumah tangga jika seluruh isian sudah sesuai",
                                             style: const TextStyle(
                                                 fontSize: 14,
                                                 color: Colors.black87,
@@ -201,8 +213,8 @@ class _CardMiskin extends StatelessWidget {
                                         overflow: TextOverflow.ellipsis,
                                       ),
                                       subtitle: Text(
-                                        "NKS : ${data.nks},  PCL : ${data.kodePcl!}",
-                                        maxLines: 1,
+                                        "Desa : ${data.desa},  BS : ${data.bs!}\nNKS : ${data.nks!}, PCL : ${data.kodePcl!}",
+                                        maxLines: 2,
                                         overflow: TextOverflow.ellipsis,
                                       ),
                                       contentPadding: const EdgeInsets.all(0),

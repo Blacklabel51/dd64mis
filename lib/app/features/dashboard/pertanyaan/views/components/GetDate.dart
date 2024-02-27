@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:location/location.dart';
 
 class GetDate extends StatelessWidget {
-  final Location location = new Location();
+  final Location location = Location();
   final String? locationData;
   final String? label;
   final Function? onTapnow;

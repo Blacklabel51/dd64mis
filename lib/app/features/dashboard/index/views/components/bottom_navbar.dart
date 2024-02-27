@@ -36,12 +36,12 @@ class _BottomNavbar extends StatelessWidget {
           label: "Kode",
           tooltip: "Kode",
         ),
-        BottomNavigationBarItem(
-          icon: SvgPicture.asset("assets/images/vector/cart.svg"),
-          activeIcon: SvgPicture.asset("assets/images/vector/cart_active.svg"),
-          label: "Konsumsi",
-          tooltip: "Konsumsi",
-        ),
+        // BottomNavigationBarItem(
+        //   icon: SvgPicture.asset("assets/images/vector/cart.svg"),
+        //   activeIcon: SvgPicture.asset("assets/images/vector/cart_active.svg"),
+        //   label: "Konsumsi",
+        //   tooltip: "Konsumsi",
+        // ),
       ],
       onTap: (value) {
         onSelected(value);

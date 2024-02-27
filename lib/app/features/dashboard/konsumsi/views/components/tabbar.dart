@@ -8,7 +8,6 @@ class _Tabbar extends StatelessWidget {
     return GetBuilder<KonsumsiController>(
         // autoRemove: false,
         builder: (c) {
-      log(c.listkomoditi.length.toString());
       return Container(
         width: Get.width,
         padding: EdgeInsets.only(
@@ -20,11 +19,10 @@ class _Tabbar extends StatelessWidget {
               topRight: Radius.circular(50),
             )),
         child: DefaultTabController(
-          length: 4,
+          length: 5,
           child: Column(
             children: [
               Container(
-                margin: const EdgeInsets.only(left: 10, right: 10),
                 decoration: const BoxDecoration(
                   color: Color(0xffFEF5ED),
                   boxShadow: [
@@ -35,9 +33,11 @@ class _Tabbar extends StatelessWidget {
                   ],
                 ),
                 child: TabBar(
+                  controller: c.tabController,
                   onTap: (int i) {},
+                  isScrollable: true,
                   indicatorSize: TabBarIndicatorSize.tab,
-                  padding: const EdgeInsets.all(5),
+                  labelPadding: const EdgeInsets.symmetric(horizontal: 10),
                   labelColor: Colors.white,
                   indicatorColor: Colors.white,
                   unselectedLabelColor: Colors.black,
@@ -51,12 +51,15 @@ class _Tabbar extends StatelessWidget {
                     Tab(text: "Makanan"),
                     Tab(text: "Non Makanan"),
                     Tab(text: "Pendapatan"),
+                    Tab(text: "Rekap"),
                   ],
                 ),
               ),
               Expanded(
                 child: TabBarView(
+                  controller: c.tabController,
                   children: [
+                    //Identitas
                     Container(
                       margin: const EdgeInsets.symmetric(horizontal: 20),
                       height: MediaQuery.of(context).size.height,
@@ -291,25 +294,10 @@ class _Tabbar extends StatelessWidget {
                                     },
                                         childCount:
                                             c.daftarPertanyaanRuta.length)),
-                                SliverToBoxAdapter(
-                                    child: Padding(
-                                  padding: const EdgeInsets.only(bottom: 20),
-                                  child: ElevatedButton(
-                                      style: ButtonStyle(
-                                          backgroundColor:
-                                              MaterialStateProperty.all<Color>(
-                                                  Colors.greenAccent)),
-                                      onPressed: () {
-                                        c.simpanArt();
-                                        c.update();
-                                        log(c.rutaTerpilih.namaArt!.length
-                                            .toString());
-                                      },
-                                      child: const Text("Simpan")),
-                                )),
                               ],
                             ),
                     ),
+                    //Makanan
                     Container(
                         height: MediaQuery.of(context).size.height,
                         color: Colors.white,
@@ -397,21 +385,22 @@ class _Tabbar extends StatelessWidget {
                                             c.filterlistkomoditi.length)),
                               ],
                             ),
-                            Align(
-                              alignment: Alignment.bottomRight,
-                              child: Padding(
-                                padding: const EdgeInsets.all(14.0),
-                                child: FloatingActionButton.extended(
-                                  onPressed: () {
-                                    c.kirim();
-                                  },
-                                  icon: Icon(Icons.send),
-                                  label: Text("Kirim"),
-                                ),
-                              ),
-                            ),
+                            // Align(
+                            //   alignment: Alignment.bottomRight,
+                            //   child: Padding(
+                            //     padding: const EdgeInsets.all(14.0),
+                            //     child: FloatingActionButton.extended(
+                            //       onPressed: () {
+                            //         c.kirim();
+                            //       },
+                            //       icon: Icon(Icons.send),
+                            //       label: Text("Kirim"),
+                            //     ),
+                            //   ),
+                            // ),
                           ],
                         )),
+                    //Non Makanan
                     Container(
                         height: MediaQuery.of(context).size.height,
                         color: Colors.white,
@@ -501,25 +490,30 @@ class _Tabbar extends StatelessWidget {
                                             .length)),
                               ],
                             ),
-                            Align(
-                              alignment: Alignment.bottomRight,
-                              child: Padding(
-                                padding: const EdgeInsets.all(14.0),
-                                child: FloatingActionButton.extended(
-                                  onPressed: () {
-                                    // c.kirim();
-                                  },
-                                  icon: Icon(Icons.send),
-                                  label: Text("Kirim"),
-                                ),
-                              ),
-                            ),
+                            // Align(
+                            //   alignment: Alignment.bottomRight,
+                            //   child: Padding(
+                            //     padding: const EdgeInsets.all(14.0),
+                            //     child: FloatingActionButton.extended(
+                            //       onPressed: () {
+                            //         // c.kirim();
+                            //       },
+                            //       icon: Icon(Icons.send),
+                            //       label: Text("Kirim"),
+                            //     ),
+                            //   ),
+                            // ),
                           ],
                         )),
+                    //Pendapatan
                     Container(
                         height: MediaQuery.of(context).size.height,
                         color: Colors.white,
-                        child: const Text("Cocok")),
+                        child: newMethod(c)),
+                    //Rekap
+                    Container(
+                      child: const Text("Pendapatan"),
+                    ),
                   ],
                 ),
               ),
@@ -530,6 +524,126 @@ class _Tabbar extends StatelessWidget {
     });
   }
 
+  Widget newMethod(KonsumsiController c) {
+    return ListView(
+      physics: const BouncingScrollPhysics(),
+      children: [
+        GestureDetector(
+          onTap: () => Get.to(() => const PendapatanGaji()),
+          child: Container(
+            height: 40,
+            color: Warna.card,
+            child: const Center(
+              child: Text(
+                'A. PENDAPATAN DARI UPAH/GAJI BAIK BERUPA UANG MAUPUN BARANG/JASA YANG DITERIMA SELAMA SETAHUN TERAKHIR',
+                style: TextStyle(color: Colors.black54, fontSize: 16),
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(height: 10),
+        GestureDetector(
+          onTap: () => Get.to(const PendapatanUsaha()),
+          child: Container(
+            height: 40,
+            color: Warna.card,
+            child: const Center(
+              child: Text(
+                'B. PENDAPATAN DARI USAHA RUMAH TANGGA SELAMA SETAHUN TERAKHIR',
+                style: TextStyle(color: Colors.black54, fontSize: 16),
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(height: 10),
+        Container(
+          height: 40,
+          color: Warna.card,
+          child: const Center(
+            child: Text(
+              'C. PENDAPATAN DARI PRODUKSI RUMAH TANGGA YANG DIKONSUMSI/DIGUNAKAN SENDIRI SELAMA SETAHUN TERAKHIR',
+              style: TextStyle(color: Colors.black54, fontSize: 16),
+            ),
+          ),
+        ),
+        const SizedBox(height: 10),
+        GroupedListView<KomoditiData, String>(
+          elements: c.filterlisttransfer,
+
+          // useStickyGroupSeparators: true,
+          shrinkWrap: true,
+          sort: false,
+          groupBy: (e) => e.sub!,
+          groupSeparatorBuilder: (String groupByValue) => Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            child: Container(
+              height: 50,
+              decoration: const BoxDecoration(
+                color: Warna.card,
+                borderRadius: BorderRadius.all(Radius.circular(14)),
+              ),
+              child: Center(child: Text(groupByValue)),
+            ),
+          ),
+          indexedItemBuilder: (context, KomoditiData e, int i) {
+            var data = c.filterlisttransfer[i];
+            var nilai = c.konsumsiTerpilih
+                .where((element) => element.komoditi == data.no)
+                .map((e) => int.tryParse(e.nilai ?? "0") ?? 0)
+                .sum;
+            return GestureDetector(
+              onTap: () {
+                c.inputTransfer(i);
+                c.komoditiHalamaanCtrl = PageController(initialPage: i);
+                Get.to(() => const PendapatanScreen());
+              },
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 7.0),
+                child: Container(
+                  height: 70,
+                  padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    color:
+                        (nilai > 0) ? Colors.lightGreenAccent : Warna.cardBlue,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.1),
+                        spreadRadius: .2,
+                        blurRadius: 5,
+                        offset: const Offset(0, 5),
+                      ),
+                    ],
+                  ),
+                  child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: SizedBox(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              e.rincian!,
+                              style: TeksStyle.judulTanya,
+                            ),
+                            Text(
+                              (nilai > 0)
+                                  ? "Rp. ${NumberFormat.decimalPattern().format(nilai)}"
+                                  : "",
+                              style: TeksStyle.subjudulTanya,
+                            ),
+                          ],
+                        ),
+                      )),
+                ),
+              ),
+            );
+          },
+        ),
+      ],
+    );
+  }
+
   Widget askSwitch(Pertanyaan tanya, KonsumsiController c) {
     // c.rutaTerpilih.=;
     return Container(
@@ -537,7 +651,7 @@ class _Tabbar extends StatelessWidget {
         borderRadius: const BorderRadius.all(Radius.circular(8)),
         color: (c.rutaTerpilihMap["${tanya.id}"]) ? Colors.amber : null,
       ),
-      padding: EdgeInsets.only(right: 5),
+      padding: const EdgeInsets.only(right: 5),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -568,7 +682,6 @@ class _Tabbar extends StatelessWidget {
                   c.rutaTerpilihMap["${tanya.id}"] =
                       !c.rutaTerpilihMap["${tanya.id}"];
                   c.onUpdate(tanya.id!, value);
-                  c.update();
                 }),
           ),
         ],

@@ -22,7 +22,7 @@ class AppPages {
     ),
     GetPage(
       name: _Paths.dashboard,
-      page: () => const DashboardScreen(),
+      page: () => DashboardScreen(),
       bindings: [
         DashboardBinding(),
         HomeBinding(),

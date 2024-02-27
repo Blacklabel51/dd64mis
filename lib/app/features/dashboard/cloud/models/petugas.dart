@@ -7,28 +7,37 @@ class Petugas {
       this.nama,
       this.status,
       this.kodekabkota,
-      this.pemutakhiran,
-      this.pencacahan,
-      this.pemeriksaan});
+      this.pPemutakhiran,
+      this.pPencacahan,
+      this.pPemeriksaan,
+      this.pDokClean,
+      this.pTerima,
+      this.pOlah});
 
   String? kodePetugas;
   String? kabkota;
   String? nama;
   String? status;
   String? kodekabkota;
-  double? pemutakhiran;
-  double? pencacahan;
-  double? pemeriksaan;
+  double? pPemutakhiran;
+  double? pPencacahan;
+  double? pPemeriksaan;
+  double? pDokClean;
+  double? pTerima;
+  double? pOlah;
 
   factory Petugas.fromJson(Map<String, dynamic> json) => Petugas(
-        kodePetugas: json["kodePetugas"],
-        kabkota: json["kabkota"],
-        nama: json["nama"],
-        status: json["status"],
-        kodekabkota: json["kodekabkota"],
-        pemutakhiran: double.tryParse(json["pemutakhiran"]) ?? 0,
-        pencacahan: double.tryParse(json["pencacahan"]) ?? 0,
-        pemeriksaan: double.tryParse(json["pemeriksaan"]) ?? 0,
+        kodePetugas: json["kodePetugas"] ?? '',
+        kabkota: json["kabkota"] ?? '',
+        nama: json["nama"] ?? '',
+        status: json["status"] ?? '',
+        kodekabkota: json["kodekabkota"] ?? '',
+        pPemutakhiran: double.tryParse(json["pPemutakhiran"]) ?? 0,
+        pPencacahan: double.tryParse(json["pPencacahan"]) ?? 0,
+        pPemeriksaan: double.tryParse(json["pPemeriksaan"]) ?? 0,
+        pDokClean: double.tryParse(json["pDokClean"]) ?? 0,
+        pTerima: double.tryParse(json["pTerima"]) ?? 0,
+        pOlah: double.tryParse(json["pOlah"]) ?? 0,
       );
 
   Map<String, dynamic> toJson() => {
@@ -37,18 +46,21 @@ class Petugas {
         "nama": nama,
         "status": status,
         "kodekabkota": kodekabkota,
-        "pemutakhiran": pemutakhiran.toString(),
-        "pencacahan": pencacahan.toString(),
-        "pemeriksaan": pemeriksaan.toString(),
+        "pPemutakhiran": pPemutakhiran.toString(),
+        "pPencacahan": pPencacahan.toString(),
+        "pPemeriksaan": pPemeriksaan.toString(),
+        "pDokClean": pDokClean.toString(),
+        "pTerima": pTerima.toString(),
+        "pOlah": pOlah.toString(),
       };
 
   static List<Petugas> fromJsonList(List list) {
-    if (list.length == 0) return List<Petugas>.empty();
+    if (list.isEmpty) return List<Petugas>.empty();
     return list.map((e) => Petugas.fromJson(e)).toList();
   }
 
   static List<Map<String, dynamic>> toJsonList(List<Petugas> list) {
-    if (list.length == 0) return List<Map<String, dynamic>>.empty();
+    if (list.isEmpty) return List<Map<String, dynamic>>.empty();
     return list.map((e) => e.toJson()).toList();
   }
 }

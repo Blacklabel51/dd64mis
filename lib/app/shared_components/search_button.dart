@@ -1,4 +1,4 @@
-import 'package:mysusenas/app/constans/app_constants.dart';
+import 'package:dd64mis/app/constans/app_constants.dart';
 import 'package:flutter/material.dart';
 
 class SearchButton extends StatelessWidget {
@@ -12,11 +12,11 @@ class SearchButton extends StatelessWidget {
         border: Border.all(color: Colors.grey),
       ),
       child: IconButton(
-        constraints: BoxConstraints(maxHeight: 50, maxWidth: 50),
+        constraints: const BoxConstraints(maxHeight: 50, maxWidth: 50),
         iconSize: 15,
-        padding: EdgeInsets.all(10),
+        padding: const EdgeInsets.all(10),
         onPressed: onPressed,
-        icon: Icon(CustomIcons.search),
+        icon: const Icon(CustomIcons.search),
         tooltip: "Search",
       ),
     );

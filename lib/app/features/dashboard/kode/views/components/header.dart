@@ -24,10 +24,12 @@ class _Header extends StatelessWidget {
                     // hintText: "Cari Disini",
                     enableKeyboardFocus: true,
                     durationInMilliSeconds: 500,
+                    secondaryButtonWidget: const Icon(Icons.search),
                     textEditingController: controller.textController,
                     isOriginalAnimation: false,
                     buttonBorderColour: Colors.black45,
-                    buttonIcon: Icons.search,
+                    trailingWidget: const Icon(Icons.search),
+                    buttonWidget: const Icon(Icons.search),
                     onChanged: (text) {
                       controller.search(text);
                     },

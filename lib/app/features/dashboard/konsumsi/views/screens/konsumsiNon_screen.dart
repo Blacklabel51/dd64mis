@@ -92,15 +92,27 @@ class KonsumsiNonScreen extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
                         FloatingActionButton.extended(
-                          heroTag: 'cancel',
-                          label: const Text('Batal'),
-                          icon: const Icon(Icons.cancel),
-                          backgroundColor: Colors.pink,
+                          heroTag: 'home',
+                          label: const Text('Home'),
+                          icon: const Icon(Icons.home),
+                          backgroundColor: Colors.blueAccent,
                           onPressed: () {
                             c.editKonsumsi = false;
                             c.update();
                             c.clear();
                             Get.back();
+                          },
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                        FloatingActionButton.extended(
+                          heroTag: 'clear',
+                          label: const Text('Clear'),
+                          icon: const Icon(Icons.cancel),
+                          backgroundColor: Colors.pink,
+                          onPressed: () {
+                            c.clear();
                           },
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10),

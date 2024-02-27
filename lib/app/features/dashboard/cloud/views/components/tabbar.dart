@@ -1,7 +1,7 @@
 part of cloud;
 
-class _Tabbar extends StatelessWidget {
-  const _Tabbar({required this.dataMap, Key? key}) : super(key: key);
+class Tabbar extends StatelessWidget {
+  const Tabbar({required this.dataMap, Key? key}) : super(key: key);
   final List<Map<String, dynamic>> dataMap;
 
   @override
@@ -41,7 +41,7 @@ class _Tabbar extends StatelessWidget {
                     child: TabBar(
                       onTap: (int i) {},
                       indicatorSize: TabBarIndicatorSize.tab,
-                      padding: EdgeInsets.all(5),
+                      padding: const EdgeInsets.all(5),
                       labelColor: Colors.white,
                       indicatorColor: Colors.white,
                       unselectedLabelColor: Colors.black,
@@ -61,10 +61,8 @@ class _Tabbar extends StatelessWidget {
                   Expanded(
                     child: TabBarView(children: [
                       CardPemutakhiran(
-                          dataSampelan: dataMap,
-                          folderData: c.dataSampel
-                              .where((e) => e.ruta == "1")
-                              .toList()),
+                          dataSampelan: c.dataUpdatingan,
+                          folderData: c.dataUpdating.toList()),
                       _CardData(
                           dataSampelan: dataMap, folderData: c.dataSampel),
                       _CardMiskin(
@@ -73,12 +71,6 @@ class _Tabbar extends StatelessWidget {
                                   e.miskin == "Miskin" || e.sMiskin == "Miskin")
                               .toList(),
                           dataSampelan: dataMap),
-                      // _Tabfenomena(
-                      //     dataMap: c.dataFenomena
-                      //         .where((element) =>
-                      //             element.petugas == c.petugasTerpilih.nama &&
-                      //             element.delete != '1')
-                      //         .toList())
                     ]),
                   )
                 ])),

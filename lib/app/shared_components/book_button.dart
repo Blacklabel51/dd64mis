@@ -1,4 +1,4 @@
-import 'package:badges/badges.dart';
+import 'package:badges/badges.dart' as badges;
 import 'package:flutter/material.dart';
 
 class BookButton extends StatelessWidget {
@@ -8,8 +8,8 @@ class BookButton extends StatelessWidget {
   final Function() onPressed;
   @override
   Widget build(BuildContext context) {
-    return Badge(
-      position: BadgePosition.bottomStart(start: -5, bottom: -5),
+    return badges.Badge(
+      position: badges.BadgePosition.bottomStart(start: -5, bottom: -5),
       badgeContent: Text(
         badge,
         style: TextStyle(color: Colors.white, fontSize: 10),

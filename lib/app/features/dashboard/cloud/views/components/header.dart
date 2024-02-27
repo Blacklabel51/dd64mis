@@ -13,7 +13,7 @@ class _Header extends StatelessWidget {
               children: [
                 _title(
                     (controller.petugasTerpilih.nama != null)
-                        ? "${controller.petugasTerpilih.nama}/${controller.petugasTerpilih.kodePetugas}/${controller.petugasTerpilih.status}"
+                        ? "${controller.petugasTerpilih.nama}/${controller.petugasTerpilih.status}"
                         : "",
                     context),
                 Spacer(),
@@ -24,7 +24,11 @@ class _Header extends StatelessWidget {
                       controller.getPertanyaan();
                       controller.getSampel();
                       Get.defaultDialog(
-                        content: Lottie.asset('assets/animasi/success.json'),
+                        content: Align(
+                            child: SizedBox(
+                                height: 240,
+                                child: Lottie.asset(
+                                    'assets/animasi/success.json'))),
                         title: "Update Kuesioner",
                         confirm: ElevatedButton(
                             style: ButtonStyle(

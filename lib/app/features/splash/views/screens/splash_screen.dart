@@ -1,7 +1,7 @@
 library splash;
 
-import 'package:mysusenas/app/config/routes/app_pages.dart';
-import 'package:mysusenas/app/constans/app_constants.dart';
+import 'package:dd64mis/app/config/routes/app_pages.dart';
+import 'package:dd64mis/app/constans/app_constants.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:url_launcher/url_launcher.dart';

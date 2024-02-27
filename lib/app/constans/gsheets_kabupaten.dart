@@ -19,15 +19,15 @@ class GKabupaten extends GetConnect {
 }
   ''';
 
-  static const _idSheet = '1_7wRmyZPPuvf1FSTcFq4npu8U1GKByeuK2Sq8ieVY4c';
+  static const _idSheet = '1SeIW94K87vBQazxMHhwAUCf7ihyg7m9MKj5JX4dpHlk';
   static final _gsheets = GSheets(_credential);
-  static Worksheet? _datasheets;
+  static Worksheet? datasheets;
 
   static Future init() async {
     try {
       final spreadsheets = await _gsheets.spreadsheet(_idSheet);
       // _datasheets = await _getWorkSheet(spreadsheets, title: 'idcard');
-      _datasheets = spreadsheets.worksheetByTitle('kabupaten');
+      datasheets = spreadsheets.worksheetByTitle('kabupaten');
       // final firstrow = Datasheets.getFields();
 
       // _datasheets.values.insertRow(1, firstrow);
